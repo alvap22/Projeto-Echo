@@ -36,6 +36,8 @@ function EditReview() {
 
   const [preview, setPreview] =
     useState("");
+    const [erros, setErros] =
+  useState({});
 
   useEffect(() => {
     async function fetchReview() {
@@ -46,23 +48,23 @@ function EditReview() {
           );
 
         const review =
-          response.data;
+  response.data.review;
 
-        setTitulo(review.titulo);
+setTitulo(review.titulo);
 
-        setDescricao(
-          review.descricao
-        );
+setDescricao(
+  review.descricao
+);
 
-        setNota(review.nota);
+setNota(review.nota);
 
-        setGenero(
-          review.genero
-        );
+setGenero(
+  review.genero
+);
 
-        setPreview(
-          review.imagem
-        );
+setPreview(
+  review.imagem
+);
       } catch (error) {
         console.log(error);
       }
@@ -72,9 +74,41 @@ function EditReview() {
   }, [id]);
 
   async function handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
+  const novosErros = {};
+
+  if (!titulo.trim()) {
+    novosErros.titulo =
+      "O título é obrigatório";
+  }
+
+  if (!descricao.trim()) {
+    novosErros.descricao =
+      "A descrição é obrigatória";
+  }
+
+  if (!genero) {
+    novosErros.genero =
+      "Selecione um gênero";
+  }
+
+  if (nota === 0) {
+    novosErros.nota =
+      "Selecione uma nota";
+  }
+
+  if (
+    Object.keys(novosErros)
+      .length > 0
+  ) {
+    setErros(novosErros);
+    return;
+  }
+
+  setErros({});
+
+  try {
       const token =
         localStorage.getItem(
           "token"
@@ -149,14 +183,28 @@ function EditReview() {
               </label>
 
               <input
-                type="text"
-                value={titulo}
-                onChange={(e) =>
-                  setTitulo(
-                    e.target.value
-                  )
-                }
-              />
+  type="text"
+  value={titulo}
+  onChange={(e) => {
+    if (
+      e.target.value.length <= 90
+    ) {
+      setTitulo(
+        e.target.value
+      );
+    }
+  }}
+/>
+
+<p className="char-counter">
+  {titulo.length}/90
+</p>
+
+{erros.titulo && (
+  <p className="error-message">
+    {erros.titulo}
+  </p>
+)}
             </div>
 
             <div className="form-group">
@@ -165,13 +213,27 @@ function EditReview() {
               </label>
 
               <textarea
-                value={descricao}
-                onChange={(e) =>
-                  setDescricao(
-                    e.target.value
-                  )
-                }
-              ></textarea>
+  value={descricao}
+  onChange={(e) => {
+    if (
+      e.target.value.length <= 500
+    ) {
+      setDescricao(
+        e.target.value
+      );
+    }
+  }}
+></textarea>
+
+<p className="char-counter">
+  {descricao.length}/500
+</p>
+
+{erros.descricao && (
+  <p className="error-message">
+    {erros.descricao}
+  </p>
+)}
             </div>
 
             <div className="form-group">
@@ -261,6 +323,11 @@ function EditReview() {
                   Estratégia
                 </option>
               </select>
+              {erros.genero && (
+  <p className="error-message">
+    {erros.genero}
+  </p>
+)}
             </div>
 
             <div className="form-group">
@@ -289,6 +356,11 @@ function EditReview() {
                   )
                 )}
               </div>
+              {erros.nota && (
+  <p className="error-message">
+    {erros.nota}
+  </p>
+)}
             </div>
 
             <button type="submit">

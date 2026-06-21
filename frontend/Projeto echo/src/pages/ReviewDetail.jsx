@@ -27,6 +27,15 @@ function ReviewDetail() {
     textoComentario,
     setTextoComentario,
   ] = useState("");
+  const [
+  respostaTexto,
+  setRespostaTexto,
+] = useState("");
+
+const [
+  comentarioRespondendo,
+  setComentarioRespondendo,
+] = useState(null);
 
   const [curtidas, setCurtidas] =
     useState(0);
@@ -80,6 +89,7 @@ function ReviewDetail() {
   }, [id]);
 
   async function handleComentario() {
+    
     try {
       if (
         !textoComentario.trim()
@@ -98,10 +108,10 @@ function ReviewDetail() {
 
       await axios.post(
         `http://localhost:3000/reviews/${id}/comentarios`,
-        {
-          texto:
-            textoComentario,
-        },
+      {
+  texto: textoComentario,
+  id_comentario_pai: null,
+},
         {
           headers: {
             Authorization:
@@ -131,6 +141,62 @@ function ReviewDetail() {
       console.log(error);
     }
   }
+  async function handleResposta(
+  idComentario
+) {
+  try {
+
+    if (
+      !respostaTexto.trim()
+    ) {
+      return;
+    }
+
+    const token =
+      localStorage.getItem(
+        "token"
+      );
+
+    await axios.post(
+      `http://localhost:3000/reviews/${id}/comentarios`,
+      {
+        texto: respostaTexto,
+        id_comentario_pai:
+          idComentario,
+      },
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
+
+    const response =
+      await axios.get(
+        `http://localhost:3000/reviews/${id}`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+    setComentarios(
+      response.data.comentarios
+    );
+
+    setRespostaTexto("");
+
+    setComentarioRespondendo(
+      null
+    );
+
+  } catch (error) {
+    console.log(error);
+  }
+}
 
   async function handleCurtir() {
     try {
@@ -231,7 +297,11 @@ function ReviewDetail() {
       }
     );
   }
-
+const comentariosPrincipais =
+  comentarios.filter(
+    (comentario) =>
+      !comentario.id_comentario_pai
+  );
   if (!review) {
     return (
       <p>
@@ -268,13 +338,24 @@ function ReviewDetail() {
           />
         )}
 
-        <h1>
-          {review.titulo}
-        </h1>
+   <h1
+  style={{
+    overflowWrap: "break-word",
+    wordBreak: "break-word"
+  }}
+>
+  {review.titulo}
+</h1>
 
-        <p>
-          {review.descricao}
-        </p>
+<p
+  style={{
+    overflowWrap: "break-word",
+    wordBreak: "break-word",
+    whiteSpace: "pre-wrap"
+  }}
+>
+  {review.descricao}
+</p>
 
         <span>
           ⭐ {review.nota}/5
@@ -405,7 +486,7 @@ function ReviewDetail() {
               "30px",
           }}
         >
-          {comentarios.map(
+          {comentariosPrincipais.map(
             (
               comentario
             ) => (
@@ -461,6 +542,121 @@ function ReviewDetail() {
                     comentario.texto
                   }
                 </p>
+                <button
+  onClick={() =>
+    setComentarioRespondendo(
+      comentario.id_comentario
+    )
+  }
+  style={{
+    marginTop: "8px",
+    padding: "5px 10px",
+    cursor: "pointer",
+  }}
+>
+  Responder
+</button>
+
+{
+  comentarioRespondendo ===
+    comentario.id_comentario && (
+
+    <div
+      style={{
+        marginTop: "10px",
+      }}
+    >
+
+      <textarea
+        placeholder="Digite sua resposta..."
+        value={respostaTexto}
+        onChange={(e) =>
+          setRespostaTexto(
+            e.target.value
+          )
+        }
+        style={{
+          width: "100%",
+          minHeight: "60px",
+          padding: "8px",
+        }}
+      />
+
+      <button
+        onClick={() =>
+          handleResposta(
+            comentario.id_comentario
+          )
+        }
+        style={{
+          marginTop: "8px",
+        }}
+      >
+        Enviar resposta
+      </button>
+
+    </div>
+  )
+}
+{
+  comentarios
+    .filter(
+      (resposta) =>
+        resposta.id_comentario_pai ===
+        comentario.id_comentario
+    )
+    .map((resposta) => (
+
+      <div
+        key={
+          resposta.id_comentario
+        }
+        style={{
+          marginLeft: "40px",
+          marginTop: "10px",
+          padding: "10px",
+          borderLeft:
+            "3px solid #666",
+          background:
+            "#f5f5f5",
+          borderRadius: "6px",
+        }}
+      >
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent:
+              "space-between",
+            marginBottom: "5px",
+          }}
+        >
+
+          <strong>
+            {resposta.autor}
+          </strong>
+
+          <span
+            style={{
+              fontSize: "12px",
+              color: "#777",
+            }}
+          >
+            {formatarData(
+              resposta.data_comentario
+            )}
+          </span>
+
+        </div>
+
+        <p>
+          {resposta.texto}
+        </p>
+
+      </div>
+
+    ))
+}
               </div>
             )
           )}

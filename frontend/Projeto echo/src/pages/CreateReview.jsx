@@ -29,8 +29,43 @@ function CreateReview() {
   const [preview, setPreview] =
     useState(null);
 
+    const [erros, setErros] =
+  useState({});
+
   async function handleSubmit(e) {
     e.preventDefault();
+
+    const novosErros = {};
+
+if (!titulo.trim()) {
+  novosErros.titulo =
+    "O título é obrigatório";
+}
+
+if (!descricao.trim()) {
+  novosErros.descricao =
+    "A descrição é obrigatória";
+}
+
+if (!genero) {
+  novosErros.genero =
+    "Selecione um gênero";
+}
+
+if (nota === 0) {
+  novosErros.nota =
+    "Selecione uma nota";
+}
+
+if (
+  Object.keys(novosErros)
+    .length > 0
+) {
+  setErros(novosErros);
+  return;
+}
+
+setErros({});
 
     const formData = new FormData();
 
@@ -94,12 +129,24 @@ await axios.post(
                 type="text"
                 placeholder="Ex: Cyberpunk 2077 - Uma jornada pela Night City"
                 value={titulo}
-                onChange={(e) =>
+               onChange={(e) => {
+              if (
+                  e.target.value.length <= 90
+                ) {
                   setTitulo(
                     e.target.value
-                  )
+                  );
                 }
+              }}
               />
+              <p className="char-counter">
+                {titulo.length}/90
+              </p>
+              {erros.titulo && (
+                <p className="error-message">
+                  {erros.titulo}
+                </p>
+              )}
             </div>
 
             <div className="form-group">
@@ -110,12 +157,24 @@ await axios.post(
               <textarea
                 placeholder="Escreva sua análise detalhada do jogo..."
                 value={descricao}
-                onChange={(e) =>
+               onChange={(e) => {
+                if (
+                  e.target.value.length <= 500
+                ) {
                   setDescricao(
                     e.target.value
-                  )
+                  );
                 }
+              }}
               ></textarea>
+              <p className="char-counter">
+                {descricao.length}/500
+              </p>
+              {erros.descricao && (
+                <p className="error-message">
+                  {erros.descricao}
+                </p>
+              )}
             </div>
 
             <div className="form-group">
@@ -210,6 +269,11 @@ await axios.post(
                   Estratégia
                 </option>
               </select>
+              {erros.genero && (
+                <p className="error-message">
+                  {erros.genero}
+                </p>
+              )}
             </div>
 
             <div className="form-group">
@@ -237,6 +301,11 @@ await axios.post(
                   )
                 )}
               </div>
+              {erros.nota && (
+              <p className="error-message">
+                {erros.nota}
+              </p>
+            )}
             </div>
 
             <button type="submit">

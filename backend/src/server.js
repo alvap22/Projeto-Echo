@@ -49,41 +49,40 @@ app.get(
     try {
       const result =
         await pool.query(`
-        SELECT
-          review.id_review AS id,
-          review.titulo,
-          review.descricao,
-          review.imagem,
-          review.nota,
-          genero.nome AS genero,
-          usuario.nome AS autor,
+      SELECT
+  review.id_review AS id,
+  review.titulo,
+  review.descricao,
+  review.imagem,
+  review.nota,
+  genero.nome AS genero,
+  usuario.nome AS autor,
 
-          COUNT(DISTINCT curtida.id_curtida)
-            AS curtidas,
+  COUNT(DISTINCT curtida.id_curtida) AS curtidas,
+  COUNT(DISTINCT denuncia.id_denuncia) AS denuncias
 
-          COUNT(DISTINCT denuncia.id_denuncia)
-            AS denuncias
+FROM review
 
-        FROM review
+JOIN usuario
+  ON review.id_usuario = usuario.id_usuario
 
-        JOIN usuario
-          ON review.id_usuario = usuario.id_usuario
+JOIN genero
+  ON review.id_genero = genero.id_genero
 
-        JOIN genero
-          ON review.id_genero = genero.id_genero
+LEFT JOIN curtida
+  ON review.id_review = curtida.id_review
 
-        LEFT JOIN curtida
-          ON review.id_review = curtida.id_review
+LEFT JOIN denuncia
+  ON review.id_review = denuncia.id_review
 
-        LEFT JOIN denuncia
-          ON review.id_review = denuncia.id_review
+WHERE review.ativo = TRUE
 
-        GROUP BY
-          review.id_review,
-          genero.nome,
-          usuario.nome
+GROUP BY
+  review.id_review,
+  genero.nome,
+  usuario.nome
 
-        ORDER BY review.data_postagem DESC
+ORDER BY review.data_postagem DESC;
       `);
 
       res.json(result.rows);
@@ -129,11 +128,12 @@ app.get(
           JOIN genero
             ON review.id_genero = genero.id_genero
           WHERE review.id_review = $1
+          AND review.ativo = TRUE
         `,
           [id]
         );
 
-      if (
+      if (  
         reviewResult.rows.length === 0
       ) {
         return res
@@ -151,11 +151,13 @@ app.get(
             comentario.id_comentario,
             comentario.texto,
             comentario.data_comentario,
+            comentario.id_comentario_pai,
             usuario.nome AS autor
           FROM comentario
           JOIN usuario
             ON comentario.id_usuario = usuario.id_usuario
           WHERE comentario.id_review = $1
+          AND comentario.ativo = TRUE
           ORDER BY comentario.data_comentario DESC
         `,
           [id]
@@ -231,89 +233,104 @@ app.get(
 // =========================
 // CRIAR REVIEW
 // =========================
-
 app.post(
   "/reviews",
   authMiddleware,
   upload.single("imagem"),
   async (req, res) => {
     try {
-      const {
-        titulo,
-        descricao,
-        nota,
-        genero,
-      } = req.body;
+      const { titulo, descricao, nota, genero } = req.body;
+
+      // =========================
+      // VALIDAÇÕES PRIMEIRO
+      // =========================
+
+      if (!titulo || titulo.trim() === "") {
+        return res.status(400).json({ message: "Título obrigatório" });
+      }
+
+      if (titulo.length > 90) {
+        return res.status(400).json({ message: "Título deve ter no máximo 90 caracteres" });
+      }
+
+      if (!descricao || descricao.trim() === "") {
+        return res.status(400).json({ message: "Descrição obrigatória" });
+      }
+
+      if (descricao.length > 500) {
+        return res.status(400).json({ message: "Descrição deve ter no máximo 500 caracteres" });
+      }
+
+      if (!nota) {
+        return res.status(400).json({ message: "Nota obrigatória" });
+      }
+
+      if (!genero) {
+        return res.status(400).json({ message: "Gênero obrigatório" });
+      }
+
+      // =========================
+      // IMAGEM
+      // =========================
 
       const imagem = req.file
         ? `http://localhost:3000/uploads/${req.file.filename}`
         : null;
 
-      const idUsuario =
-        req.usuario.id;
+      const idUsuario = req.usuario.id;
 
-      const generoResult =
-        await pool.query(
-          `
-          SELECT id_genero
-          FROM genero
-          WHERE nome = $1
+      // =========================
+      // BUSCA GÊNERO
+      // =========================
+
+      const generoResult = await pool.query(
+        `
+        SELECT id_genero
+        FROM genero
+        WHERE nome = $1
         `,
-          [genero]
-        );
+        [genero]
+      );
 
-      if (
-        generoResult.rows.length === 0
-      ) {
-        return res
-          .status(404)
-          .json({
-            message:
-              "Gênero não encontrado",
-          });
+      if (generoResult.rows.length === 0) {
+        return res.status(404).json({
+          message: "Gênero não encontrado",
+        });
       }
 
-      const idGenero =
-        generoResult.rows[0]
-          .id_genero;
+      const idGenero = generoResult.rows[0].id_genero;
 
-      const result =
-        await pool.query(
-          `
-          INSERT INTO review
-          (
-            titulo,
-            descricao,
-            imagem,
-            nota,
-            id_usuario,
-            id_genero
-          )
-          VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING *
+      // =========================
+      // INSERT (SÓ SE TUDO OK)
+      // =========================
+
+      const result = await pool.query(
+        `
+        INSERT INTO review
+        (
+          titulo,
+          descricao,
+          imagem,
+          nota,
+          id_usuario,
+          id_genero
+        )
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING *
         `,
-          [
-            titulo,
-            descricao,
-            imagem,
-            nota,
-            idUsuario,
-            idGenero,
-          ]
-        );
+        [titulo, descricao, imagem, nota, idUsuario, idGenero]
+      );
 
-      res.status(201).json({
-        message:
-          "Review criada com sucesso!",
+      return res.status(201).json({
+        message: "Review criada com sucesso!",
         review: result.rows[0],
       });
 
     } catch (error) {
       console.log(error);
 
-      res.status(500).json({
-        message:
-          "Erro ao criar review",
+      return res.status(500).json({
+        message: "Erro ao criar review",
       });
     }
   }
@@ -359,6 +376,7 @@ app.get(
           JOIN genero
             ON review.id_genero = genero.id_genero
           WHERE review.id_usuario = $1
+          AND review.ativo = TRUE
           ORDER BY review.data_postagem DESC
         `,
           [idUsuario]
@@ -384,11 +402,7 @@ app.get(
 );
 
 // =========================
-// EXCLUIR REVIEW
-// =========================
-
-// =========================
-// EXCLUIR REVIEW
+// EXCLUIR REVIEW (SOFT DELETE)
 // =========================
 
 app.delete(
@@ -417,6 +431,7 @@ app.delete(
             FROM review
             WHERE id_review = $1
             AND id_usuario = $2
+            AND ativo = TRUE
           `,
             [
               idReview,
@@ -436,41 +451,23 @@ app.delete(
         }
       }
 
-      // REMOVE CURTIDAS
+      // INATIVA TODOS OS COMENTÁRIOS DA REVIEW
 
       await pool.query(
         `
-        DELETE FROM curtida
+        UPDATE comentario
+        SET ativo = FALSE
         WHERE id_review = $1
       `,
         [idReview]
       );
 
-      // REMOVE COMENTÁRIOS
+      // INATIVA A REVIEW
 
       await pool.query(
         `
-        DELETE FROM comentario
-        WHERE id_review = $1
-      `,
-        [idReview]
-      );
-
-      // REMOVE DENÚNCIAS
-
-      await pool.query(
-        `
-        DELETE FROM denuncia
-        WHERE id_review = $1
-      `,
-        [idReview]
-      );
-
-      // REMOVE REVIEW
-
-      await pool.query(
-        `
-        DELETE FROM review
+        UPDATE review
+        SET ativo = FALSE
         WHERE id_review = $1
       `,
         [idReview]
@@ -478,7 +475,7 @@ app.delete(
 
       res.json({
         message:
-          "Review excluída com sucesso!",
+          "Review removida com sucesso!",
       });
 
     } catch (error) {
@@ -487,7 +484,7 @@ app.delete(
 
       res.status(500).json({
         message:
-          "Erro ao excluir review",
+          "Erro ao remover review",
       });
     }
   }
@@ -515,6 +512,51 @@ app.put(
         nota,
         genero,
       } = req.body;
+      if (!titulo?.trim()) {
+  return res.status(400).json({
+    message:
+      "O título é obrigatório",
+  });
+}
+
+if (!descricao?.trim()) {
+  return res.status(400).json({
+    message:
+      "A descrição é obrigatória",
+  });
+}
+
+if (!genero) {
+  return res.status(400).json({
+    message:
+      "Selecione um gênero",
+  });
+}
+
+if (
+  !nota ||
+  Number(nota) < 1 ||
+  Number(nota) > 5
+) {
+  return res.status(400).json({
+    message:
+      "Selecione uma nota válida",
+  });
+}
+
+if (titulo.length > 90) {
+  return res.status(400).json({
+    message:
+      "O título deve ter no máximo 90 caracteres",
+  });
+}
+
+if (descricao.length > 500) {
+  return res.status(400).json({
+    message:
+      "A descrição deve ter no máximo 500 caracteres",
+  });
+}
 
       const imagem = req.file
         ? `http://localhost:3000/uploads/${req.file.filename}`
@@ -614,7 +656,10 @@ app.post(
         req.usuario.id;
 
       const texto =
-        req.body.texto?.trim();
+      req.body.texto?.trim();
+
+const idComentarioPai =
+  req.body.id_comentario_pai || null;
 
       if (!texto) {
         return res
@@ -626,24 +671,25 @@ app.post(
       }
 
       const result =
-        await pool.query(
-          `
-          INSERT INTO comentario
-          (
-            texto,
-            id_usuario,
-            id_review
-          )
-          VALUES ($1, $2, $3)
-          RETURNING *
-        `,
-          [
-            texto,
-            idUsuario,
-            idReview,
-          ]
-        );
-
+      await pool.query(
+        `
+        INSERT INTO comentario
+        (
+          texto,
+          id_usuario,
+          id_review,
+          id_comentario_pai
+        )
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+      `,
+        [
+          texto,
+          idUsuario,
+          idReview,
+          idComentarioPai,
+        ]
+      );
       res.status(201).json({
         message:
           "Comentário criado!",
@@ -853,21 +899,28 @@ app.get(
 
       const result =
         await pool.query(`
-          SELECT
-            review.id_review,
-            review.titulo,
-            usuario.nome AS autor,
-            COUNT(denuncia.id_denuncia) AS denuncias
-          FROM denuncia
-          JOIN review
-            ON denuncia.id_review = review.id_review
-          JOIN usuario
-            ON review.id_usuario = usuario.id_usuario
-          GROUP BY
-            review.id_review,
-            review.titulo,
-            usuario.nome
-          ORDER BY denuncias DESC
+        SELECT
+  review.id_review,
+  review.titulo,
+  usuario.nome AS autor,
+  COUNT(denuncia.id_denuncia) AS denuncias
+
+FROM denuncia
+
+JOIN review
+  ON denuncia.id_review = review.id_review
+
+JOIN usuario
+  ON review.id_usuario = usuario.id_usuario
+
+WHERE review.ativo = TRUE
+
+GROUP BY
+  review.id_review,
+  review.titulo,
+  usuario.nome
+
+ORDER BY denuncias DESC;
         `);
 
       res.json(
