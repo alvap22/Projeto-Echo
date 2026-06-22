@@ -366,10 +366,23 @@ const comentariosPrincipais =
           {review.genero}
         </p>
 
-        <p>
-          Autor:{" "}
-          {review.autor}
-        </p>
+<p>
+  Autor:{" "}
+  <span
+    style={{
+      color: "#6c63ff",
+      cursor: "pointer",
+      fontWeight: "bold",
+    }}
+    onClick={() =>
+      navigate(
+        `/profile/${review.id_autor}`
+      )
+    }
+  >
+    {review.autor}
+  </span>
+</p>
 
         {/* CURTIDAS E DENÚNCIA */}
 

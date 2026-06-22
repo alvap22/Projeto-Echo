@@ -241,9 +241,7 @@ app.post(
     try {
       const { titulo, descricao, nota, genero } = req.body;
 
-      // =========================
-      // VALIDAÇÕES PRIMEIRO
-      // =========================
+     
 
       if (!titulo || titulo.trim() === "") {
         return res.status(400).json({ message: "Título obrigatório" });
@@ -299,10 +297,6 @@ app.post(
       }
 
       const idGenero = generoResult.rows[0].id_genero;
-
-      // =========================
-      // INSERT (SÓ SE TUDO OK)
-      // =========================
 
       const result = await pool.query(
         `
@@ -402,6 +396,267 @@ app.get(
 );
 
 // =========================
+// PERFIL PÚBLICO
+// =========================
+
+app.get(
+  "/profile/:id",
+  authMiddleware,
+  async (req, res) => {
+    try {
+
+      const idPerfil =
+        req.params.id;
+
+      const idLogado =
+        req.usuario.id;
+
+      const usuarioResult =
+        await pool.query(
+          `
+          SELECT
+            id_usuario,
+            nome,
+            email
+          FROM usuario
+          WHERE id_usuario = $1
+        `,
+          [idPerfil]
+        );
+
+      if (
+        usuarioResult.rows.length === 0
+      ) {
+        return res
+          .status(404)
+          .json({
+            message:
+              "Usuário não encontrado",
+          });
+      }
+
+      const reviewsResult =
+        await pool.query(
+          `
+          SELECT
+            review.id_review AS id,
+            review.titulo,
+            review.descricao,
+            review.imagem,
+            review.nota,
+            genero.nome AS genero
+          FROM review
+          JOIN genero
+            ON review.id_genero = genero.id_genero
+          WHERE review.id_usuario = $1
+          AND review.ativo = TRUE
+          ORDER BY review.data_postagem DESC
+        `,
+          [idPerfil]
+        );
+
+      const seguidoresResult =
+        await pool.query(
+          `
+          SELECT COUNT(*) AS total
+          FROM seguidores
+          WHERE id_seguido = $1
+        `,
+          [idPerfil]
+        );
+
+      const seguindoResult =
+        await pool.query(
+          `
+          SELECT COUNT(*) AS total
+          FROM seguidores
+          WHERE id_seguidor = $1
+        `,
+          [idPerfil]
+        );
+
+      const segueResult =
+        await pool.query(
+          `
+          SELECT *
+          FROM seguidores
+          WHERE id_seguidor = $1
+          AND id_seguido = $2
+        `,
+          [
+            idLogado,
+            idPerfil,
+          ]
+        );
+
+res.json({
+  usuario:
+    usuarioResult.rows[0],
+
+  reviews:
+    reviewsResult.rows,
+
+  seguidores: Number(
+    seguidoresResult.rows[0]
+      .total
+  ),
+
+  seguindo: Number(
+    seguindoResult.rows[0]
+      .total
+  ),
+
+  segueUsuario:
+    segueResult.rows
+      .length > 0,
+
+  usuarioLogado:
+    Number(idLogado),
+});
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message:
+          "Erro ao carregar perfil",
+      });
+    }
+  }
+);
+
+// =========================
+//  SEGUIR
+// =========================
+
+app.post(
+  "/usuarios/:id/seguir",
+  authMiddleware,
+  async (req, res) => {
+    try {
+
+      const idSeguidor =
+        req.usuario.id;
+
+      const idSeguido =
+        req.params.id;
+
+      if (
+        Number(idSeguidor) ===
+        Number(idSeguido)
+      ) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "Você não pode seguir a si mesmo",
+          });
+      }
+
+      const existe =
+        await pool.query(
+          `
+          SELECT *
+          FROM seguidores
+          WHERE id_seguidor = $1
+          AND id_seguido = $2
+        `,
+          [
+            idSeguidor,
+            idSeguido,
+          ]
+        );
+
+      if (
+        existe.rows.length > 0
+      ) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "Você já segue este usuário",
+          });
+      }
+
+      await pool.query(
+        `
+        INSERT INTO seguidores
+        (
+          id_seguidor,
+          id_seguido
+        )
+        VALUES ($1,$2)
+      `,
+        [
+          idSeguidor,
+          idSeguido,
+        ]
+      );
+
+      res.json({
+        message:
+          "Usuário seguido com sucesso",
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message:
+          "Erro ao seguir usuário",
+      });
+    }
+  }
+);
+
+// =========================
+// DEIXAR DE SEGUIR
+// =========================
+
+app.delete(
+  "/usuarios/:id/seguir",
+  authMiddleware,
+  async (req, res) => {
+    try {
+
+      const idSeguidor =
+        req.usuario.id;
+
+      const idSeguido =
+        req.params.id;
+
+      await pool.query(
+        `
+        DELETE FROM seguidores
+        WHERE id_seguidor = $1
+        AND id_seguido = $2
+      `,
+        [
+          idSeguidor,
+          idSeguido
+        ]
+      );
+
+      res.json({
+        message:
+          "Usuário removido dos seguidos"
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message:
+          "Erro ao deixar de seguir"
+      });
+    }
+  }
+);
+
+// =========================
 // EXCLUIR REVIEW (SOFT DELETE)
 // =========================
 
@@ -416,9 +671,6 @@ app.delete(
 
       const idUsuario =
         req.usuario.id;
-
-      // SE NÃO FOR ADM,
-      // SÓ PODE EXCLUIR A PRÓPRIA REVIEW
 
       if (
         req.usuario.tipo !== "admin"
@@ -903,6 +1155,7 @@ app.get(
   review.id_review,
   review.titulo,
   usuario.nome AS autor,
+  usuario.id_usuario AS id_autor,
   COUNT(denuncia.id_denuncia) AS denuncias
 
 FROM denuncia

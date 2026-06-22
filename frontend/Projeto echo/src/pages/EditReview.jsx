@@ -40,38 +40,61 @@ function EditReview() {
   useState({});
 
   useEffect(() => {
-    async function fetchReview() {
-      try {
-        const response =
-          await axios.get(
-            `http://localhost:3000/reviews/${id}`
-          );
+  async function fetchReview() {
+    try {
+      const token =
+        localStorage.getItem(
+          "token"
+        );
 
-        const review =
-  response.data.review;
+      const response =
+        await axios.get(
+          `http://localhost:3000/reviews/${id}`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
 
-setTitulo(review.titulo);
+      console.log(response.data);
 
-setDescricao(
-  review.descricao
-);
+      const review =
+        response.data.review;
 
-setNota(review.nota);
+      setTitulo(review.titulo);
 
-setGenero(
-  review.genero
-);
+      setDescricao(
+        review.descricao
+      );
 
-setPreview(
-  review.imagem
-);
-      } catch (error) {
-        console.log(error);
-      }
+      setNota(review.nota);
+
+      setGenero(
+        review.genero
+      );
+
+      setPreview(
+        review.imagem
+      );
+    } catch (error) {
+
+  console.log(error);
+
+  console.log(
+    error.response?.data
+  );
+
+  alert(
+    error.response?.data?.message
+  );
+
     }
+  }
 
-    fetchReview();
-  }, [id]);
+  fetchReview();
+}, [id]);
 
   async function handleSubmit(e) {
   e.preventDefault();

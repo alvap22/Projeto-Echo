@@ -7,6 +7,7 @@ import CreateReview from "./pages/CreateReview";
 import AdminPanel from "./pages/AdminPanel";
 import ReviewDetail from "./pages/ReviewDetail";
 import EditReview from "./pages/EditReview";
+import PublicProfile from "./pages/PublicProfile";
 
 
 function App() {
