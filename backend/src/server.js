@@ -115,20 +115,21 @@ app.get(
         await pool.query(
           `
           SELECT
-            review.id_review AS id,
-            review.titulo,
-            review.descricao,
-            review.imagem,
-            review.nota,
-            genero.nome AS genero,
-            usuario.nome AS autor
-          FROM review
-          JOIN usuario
-            ON review.id_usuario = usuario.id_usuario
-          JOIN genero
-            ON review.id_genero = genero.id_genero
-          WHERE review.id_review = $1
-          AND review.ativo = TRUE
+  review.id_review AS id,
+  review.titulo,
+  review.descricao,
+  review.imagem,
+  review.nota,
+  genero.nome AS genero,
+  usuario.nome AS autor,
+  usuario.id_usuario AS id_autor
+FROM review
+JOIN usuario
+  ON review.id_usuario = usuario.id_usuario
+JOIN genero
+  ON review.id_genero = genero.id_genero
+WHERE review.id_review = $1
+AND review.ativo = TRUE
         `,
           [id]
         );
@@ -334,11 +335,16 @@ app.post(
 // PERFIL DO USUÁRIO
 // =========================
 
+// =========================
+// PERFIL DO USUÁRIO
+// =========================
+
 app.get(
   "/profile",
   authMiddleware,
   async (req, res) => {
     try {
+
       const idUsuario =
         req.usuario.id;
 
@@ -376,20 +382,103 @@ app.get(
           [idUsuario]
         );
 
+      const seguidoresResult =
+        await pool.query(
+          `
+          SELECT COUNT(*) AS total
+          FROM seguidores
+          WHERE id_seguido = $1
+        `,
+          [idUsuario]
+        );
+
+      const seguindoResult =
+        await pool.query(
+          `
+          SELECT COUNT(*) AS total
+          FROM seguidores
+          WHERE id_seguidor = $1
+        `,
+          [idUsuario]
+        );
+
       res.json({
         usuario:
           usuarioResult.rows[0],
 
         reviews:
           reviewsResult.rows,
+
+        seguidores: Number(
+          seguidoresResult.rows[0]
+            .total
+        ),
+
+        seguindo: Number(
+          seguindoResult.rows[0]
+            .total
+        ),
       });
 
     } catch (error) {
+
       console.log(error);
 
       res.status(500).json({
         message:
           "Erro ao carregar perfil",
+      });
+    }
+  }
+);
+
+// =========================
+// LISTAR TODAS AS REVIEWS (ADM)
+// =========================
+
+app.get(
+  "/admin/reviews",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+
+      const result =
+        await pool.query(`
+          SELECT
+            review.id_review,
+            review.titulo,
+            review.nota,
+            review.ativo,
+            review.data_postagem,
+
+            usuario.id_usuario,
+            usuario.nome AS autor,
+
+            genero.nome AS genero
+
+          FROM review
+
+          JOIN usuario
+            ON review.id_usuario = usuario.id_usuario
+
+          JOIN genero
+            ON review.id_genero = genero.id_genero
+
+          ORDER BY review.data_postagem DESC
+        `);
+
+      res.json(
+        result.rows
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message:
+          "Erro ao buscar reviews"
       });
     }
   }
@@ -1171,7 +1260,8 @@ WHERE review.ativo = TRUE
 GROUP BY
   review.id_review,
   review.titulo,
-  usuario.nome
+  usuario.nome,
+  usuario.id_usuario
 
 ORDER BY denuncias DESC;
         `);

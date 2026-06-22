@@ -19,6 +19,12 @@ function Profile() {
   const [reviews, setReviews] =
     useState([]);
 
+  const [seguidores, setSeguidores] =
+    useState(0);
+
+  const [seguindo, setSeguindo] =
+    useState(0);
+
   useEffect(() => {
 
     async function fetchProfile() {
@@ -47,6 +53,14 @@ function Profile() {
 
         setReviews(
           response.data.reviews
+        );
+
+        setSeguidores(
+          response.data.seguidores
+        );
+
+        setSeguindo(
+          response.data.seguindo
         );
 
       } catch (error) {
@@ -146,10 +160,26 @@ function Profile() {
                 {usuario.email}
               </p>
 
-              <span>
-                {reviews.length} reviews
-                publicadas
-              </span>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "20px",
+                  marginTop: "8px",
+                  fontWeight: "bold",
+                }}
+              >
+                <span>
+                  {reviews.length} reviews
+                </span>
+
+                <span>
+                  {seguidores} seguidores
+                </span>
+
+                <span>
+                  {seguindo} seguindo
+                </span>
+              </div>
 
             </div>
           </div>

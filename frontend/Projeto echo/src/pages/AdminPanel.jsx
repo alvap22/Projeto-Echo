@@ -25,6 +25,9 @@ function AdminPanel() {
   const navigate =
     useNavigate();
 
+    const [busca, setBusca] =
+  useState("");
+
   const [
     denuncias,
     setDenuncias,
@@ -189,12 +192,29 @@ function AdminPanel() {
 
   if (carregando) {
 
+
+    
     return (
       <p>
         Carregando...
       </p>
     );
   }
+
+  const denunciasFiltradas =
+  denuncias.filter(
+    (item) =>
+      item.titulo
+        ?.toLowerCase()
+        .includes(
+          busca.toLowerCase()
+        ) ||
+      item.autor
+        ?.toLowerCase()
+        .includes(
+          busca.toLowerCase()
+        )
+  );
 
   return (
     <>
@@ -287,153 +307,182 @@ function AdminPanel() {
           </button>
         </div>
 
+      <input
+  type="text"
+  placeholder="🔍 Buscar por título ou autor..."
+  value={busca}
+  onChange={(e) =>
+    setBusca(
+      e.target.value
+    )
+  }
+  style={{
+    width: "100%",
+    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid #dcdcdc",
+    marginBottom: "20px",
+    fontSize: "16px",
+    boxSizing: "border-box",
+  }}
+/>
+
         {/* DENÚNCIAS */}
+{ 
+    denunciasFiltradas.length 
+    === 0 ? (
+      
 
-        {denuncias.length ===
-        0 ? (
+      <p>
+        Nenhuma review encontrada.
+      </p>
 
-          <p>
-            Nenhuma review denunciada.
-          </p>
+  ) : (
 
-        ) : (
-
-          denuncias.map(
-            (item) => (
-              <div
-                key={
-                  item.id_review
+    denuncias
+      .filter((item) =>
+        item.titulo
+          ?.toLowerCase()
+          .includes(
+            busca.toLowerCase()
+          )
+      )
+   .map(
+  (item) => (
+    <div
+      key={item.id_review}
+      style={{
+        background: "#fff",
+        borderRadius: "14px",
+        padding: "20px",
+        marginBottom: "20px",
+        boxShadow:
+          "0 4px 12px rgba(0,0,0,0.08)",
+        display: "flex",
+        gap: "20px",
+        alignItems: "center",
+      }}
+    >
+            {item.imagem && (
+              <img
+                src={
+                  item.imagem
+                }
+                alt={
+                  item.titulo
                 }
                 style={{
-                  border:
-                    "1px solid #ccc",
-                  padding:
-                    "20px",
+                  width:
+                    "100%",
+                  maxHeight:
+                    "350px",
+                  objectFit:
+                    "cover",
                   borderRadius:
                     "10px",
                   marginBottom:
-                    "20px",
+                    "15px",
+                }}
+              />
+            )}
+
+            <h2>
+              {item.titulo}
+            </h2>
+
+            <p>
+              Autor:{" "}
+              {item.autor}
+            </p>
+
+            <p>
+              ⭐{" "}
+              {item.nota}
+              /5
+            </p>
+
+            <p>
+              🚨{" "}
+              {
+                item.denuncias
+              }{" "}
+              denúncias
+            </p>
+
+            <div
+              style={{
+                display:
+                  "flex",
+                gap: "10px",
+                marginTop:
+                  "15px",
+                flexWrap:
+                  "wrap",
+              }}
+            >
+              <button
+                onClick={() =>
+                  navigate(
+                    `/review/${item.id_review}`
+                  )
+                }
+              >
+                Ver Review
+              </button>
+
+              <button
+                onClick={() =>
+                  excluirReview(
+                    item.id_review
+                  )
+                }
+                style={{
+                  background:
+                    "#c0392b",
+                  color:
+                    "white",
+                  border:
+                    "none",
+                  padding:
+                    "10px 14px",
+                  borderRadius:
+                    "8px",
+                  cursor:
+                    "pointer",
                 }}
               >
-                {item.imagem && (
-                  <img
-                    src={
-                      item.imagem
-                    }
-                    alt={
-                      item.titulo
-                    }
-                    style={{
-                      width:
-                        "100%",
-                      maxHeight:
-                        "350px",
-                      objectFit:
-                        "cover",
-                      borderRadius:
-                        "10px",
-                      marginBottom:
-                        "15px",
-                    }}
-                  />
-                )}
+                Excluir Review
+              </button>
 
-                <h2>
-                  {item.titulo}
-                </h2>
-
-                <p>
-                  Autor:{" "}
-                  {item.autor}
-                </p>
-
-                <p>
-                  ⭐{" "}
-                  {item.nota}
-                  /5
-                </p>
-
-                <p>
-                  🚨{" "}
-                  {
-                    item.denuncias
-                  }{" "}
-                  denúncias
-                </p>
-
-                <div
-                  style={{
-                    display:
-                      "flex",
-                    gap: "10px",
-                    marginTop:
-                      "15px",
-                    flexWrap:
-                      "wrap",
-                  }}
-                >
-                  <button
-                    onClick={() =>
-                      navigate(
-                        `/review/${item.id_review}`
-                      )
-                    }
-                  >
-                    Ver Review
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      excluirReview(
-                        item.id_review
-                      )
-                    }
-                    style={{
-                      background:
-                        "#c0392b",
-                      color:
-                        "white",
-                      border:
-                        "none",
-                      padding:
-                        "10px 14px",
-                      borderRadius:
-                        "8px",
-                      cursor:
-                        "pointer",
-                    }}
-                  >
-                    Excluir Review
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      limparDenuncias(
-                        item.id_review
-                      )
-                    }
-                    style={{
-                      background:
-                        "#27ae60",
-                      color:
-                        "white",
-                      border:
-                        "none",
-                      padding:
-                        "10px 14px",
-                      borderRadius:
-                        "8px",
-                      cursor:
-                        "pointer",
-                    }}
-                  >
-                    Limpar Denúncias
-                  </button>
-                </div>
-              </div>
-            )
-          )
-        )}
+              <button
+                onClick={() =>
+                  limparDenuncias(
+                    item.id_review
+                  )
+                }
+                style={{
+                  background:
+                    "#27ae60",
+                  color:
+                    "white",
+                  border:
+                    "none",
+                  padding:
+                    "10px 14px",
+                  borderRadius:
+                    "8px",
+                  cursor:
+                    "pointer",
+                }}
+              >
+                Limpar Denúncias
+              </button>
+            </div>
+          </div>
+        )
+      )
+  )
+}
       </div>
     </>
   );

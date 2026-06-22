@@ -28,6 +28,8 @@ function App() {
 
         <Route path="/edit-review/:id" element={<EditReview />} />
 
+        <Route path="/profile/:id" element={<PublicProfile />}/>
+
       </Routes>
     </BrowserRouter>
   );

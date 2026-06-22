@@ -10,6 +10,10 @@ import GenreFilter from "../components/GenreFilter";
 
 import "../styles/home.css";
 
+import {
+  useNavigate
+} from "react-router-dom";
+
 function Home() {
   const [search, setSearch] = useState("");
 
