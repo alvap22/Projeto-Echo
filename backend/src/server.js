@@ -232,6 +232,150 @@ AND review.ativo = TRUE
 );
 
 // =========================
+// VER REVIEW (ADM)
+// =========================
+
+app.get(
+  "/admin/review/:id",
+  authMiddleware,
+  async (req, res) => {
+    try {
+
+      if (
+        req.usuario.tipo !==
+        "admin"
+      ) {
+        return res
+          .status(403)
+          .json({
+            message:
+              "Acesso negado",
+          });
+      }
+
+      const id =
+        req.params.id;
+
+      // REVIEW
+
+      const reviewResult =
+        await pool.query(
+          `
+          SELECT
+            review.*,
+            usuario.nome AS autor,
+            usuario.id_usuario AS id_autor,
+            genero.nome AS genero
+
+          FROM review
+
+          JOIN usuario
+            ON review.id_usuario =
+            usuario.id_usuario
+
+          JOIN genero
+            ON review.id_genero =
+            genero.id_genero
+
+          WHERE review.id_review = $1
+          `,
+          [id]
+        );
+
+      if (
+        reviewResult.rows.length === 0
+      ) {
+        return res
+          .status(404)
+          .json({
+            message:
+              "Review não encontrada",
+          });
+      }
+
+      // COMENTÁRIOS
+
+      const comentariosResult =
+        await pool.query(
+          `
+          SELECT
+            comentario.id_comentario,
+            comentario.texto,
+            comentario.data_comentario,
+            comentario.id_comentario_pai,
+            usuario.nome AS autor
+
+          FROM comentario
+
+          JOIN usuario
+            ON comentario.id_usuario =
+            usuario.id_usuario
+
+          WHERE comentario.id_review = $1
+
+          ORDER BY
+            comentario.data_comentario DESC
+          `,
+          [id]
+        );
+
+      // CURTIDAS
+
+      const curtidasResult =
+        await pool.query(
+          `
+          SELECT COUNT(*) AS total
+          FROM curtida
+          WHERE id_review = $1
+          `,
+          [id]
+        );
+
+      // DENÚNCIAS
+
+      const denunciasResult =
+        await pool.query(
+          `
+          SELECT COUNT(*) AS total
+          FROM denuncia
+          WHERE id_review = $1
+          `,
+          [id]
+        );
+
+      res.json({
+        review:
+          reviewResult.rows[0],
+
+        comentarios:
+          comentariosResult.rows,
+
+        curtidas: Number(
+          curtidasResult.rows[0]
+            .total
+        ),
+
+        denuncias: Number(
+          denunciasResult.rows[0]
+            .total
+        ),
+
+        curtido: false,
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message:
+          "Erro ao buscar review",
+      });
+    }
+  }
+);
+
+// =========================
 // CRIAR REVIEW
 // =========================
 app.post(
@@ -1240,30 +1384,41 @@ app.get(
 
       const result =
         await pool.query(`
-        SELECT
+       SELECT
   review.id_review,
   review.titulo,
+  review.imagem,
+  review.nota,
+  review.ativo,
+
   usuario.nome AS autor,
   usuario.id_usuario AS id_autor,
-  COUNT(denuncia.id_denuncia) AS denuncias
 
-FROM denuncia
+  COUNT(
+    denuncia.id_denuncia
+  ) AS denuncias
 
-JOIN review
-  ON denuncia.id_review = review.id_review
+FROM review
 
 JOIN usuario
-  ON review.id_usuario = usuario.id_usuario
+ON review.id_usuario =
+usuario.id_usuario
 
-WHERE review.ativo = TRUE
+LEFT JOIN denuncia
+ON review.id_review =
+denuncia.id_review
 
 GROUP BY
-  review.id_review,
-  review.titulo,
-  usuario.nome,
-  usuario.id_usuario
+review.id_review,
+review.titulo,
+review.imagem,
+review.nota,
+review.ativo,
+usuario.nome,
+usuario.id_usuario
 
-ORDER BY denuncias DESC;
+ORDER BY
+review.data_postagem DESC;
         `);
 
       res.json(
@@ -1369,6 +1524,31 @@ app.post(
         email,
         senha,
       } = req.body;
+
+if (!nome?.trim()) {
+  return res.status(400).json({
+    message: "Nome é obrigatório",
+  });
+}
+
+if (!email?.trim()) {
+  return res.status(400).json({
+    message: "E-mail é obrigatório",
+  });
+}
+
+if (!senha?.trim()) {
+  return res.status(400).json({
+    message: "Senha é obrigatória",
+  });
+}
+
+if (senha.length < 6) {
+  return res.status(400).json({
+    message:
+      "A senha deve ter pelo menos 6 caracteres",
+  });
+}
 
       const usuarioExistente =
         await pool.query(

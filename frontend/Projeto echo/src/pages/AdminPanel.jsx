@@ -29,6 +29,11 @@ function AdminPanel() {
   useState("");
 
   const [
+  filtro,
+  setFiltro,
+] = useState("todas");
+
+  const [
     denuncias,
     setDenuncias,
   ] = useState([]);
@@ -81,47 +86,67 @@ function AdminPanel() {
     }
   }
 
-  async function criarAdmin() {
+    async function criarAdmin() {
 
-    try {
-
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      await axios.post(
-        "http://localhost:3000/admin/criar-admin",
-        {
-          nome,
-          email,
-          senha,
-        },
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      alert(
-        "Administrador criado!"
-      );
-
-      setNome("");
-      setEmail("");
-      setSenha("");
-
-    } catch (error) {
-
-      console.log(error);
-
-      alert(
-        error.response?.data?.message
-      );
-    }
+  if (!nome.trim()) {
+    alert("Informe o nome.");
+    return;
   }
+
+  if (!email.trim()) {
+    alert("Informe o e-mail.");
+    return;
+  }
+
+  if (!senha.trim()) {
+    alert("Informe a senha.");
+    return;
+  }
+
+  if (senha.length < 6) {
+    alert("A senha deve ter pelo menos 6 caracteres.");
+    return;
+  }
+
+  try {
+
+    const token =
+      localStorage.getItem(
+        "token"
+      );
+
+    await axios.post(
+      "http://localhost:3000/admin/criar-admin",
+      {
+        nome,
+        email,
+        senha,
+      },
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert(
+      "Administrador criado!"
+    );
+
+    setNome("");
+    setEmail("");
+    setSenha("");
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert(
+      error.response?.data?.message
+    );
+  }
+}
 
   async function limparDenuncias(
     id
@@ -202,19 +227,49 @@ function AdminPanel() {
   }
 
   const denunciasFiltradas =
-  denuncias.filter(
-    (item) =>
-      item.titulo
-        ?.toLowerCase()
-        .includes(
-          busca.toLowerCase()
-        ) ||
-      item.autor
-        ?.toLowerCase()
-        .includes(
-          busca.toLowerCase()
-        )
-  );
+  denuncias
+    .filter((item) => {
+
+      const texto =
+        busca.toLowerCase();
+
+      const passouBusca =
+        item.titulo
+          ?.toLowerCase()
+          .includes(texto) ||
+        item.autor
+          ?.toLowerCase()
+          .includes(texto);
+
+      if (!passouBusca)
+        return false;
+
+      if (
+        filtro === "ativas"
+      ) {
+        return item.ativo;
+      }
+
+      if (
+        filtro ===
+        "excluidas"
+      ) {
+        return !item.ativo;
+      }
+
+      if (
+        filtro ===
+        "denunciadas"
+      ) {
+        return (
+          Number(
+            item.denuncias
+          ) > 0
+        );
+      }
+
+      return true;
+    });
 
   return (
     <>
@@ -327,103 +382,154 @@ function AdminPanel() {
   }}
 />
 
-        {/* DENÚNCIAS */}
-{ 
-    denunciasFiltradas.length 
-    === 0 ? (
-      
+<div
+  style={{
+    display: "flex",
+    gap: "10px",
+    marginBottom: "20px",
+  }}
+>
 
-      <p>
-        Nenhuma review encontrada.
-      </p>
+  <button
+    onClick={() =>
+      setFiltro(
+        "todas"
+      )
+    }
+  >
+    Todas
+  </button>
+
+  <button
+    onClick={() =>
+      setFiltro(
+        "ativas"
+      )
+    }
+  >
+    Ativas
+  </button>
+
+  <button
+    onClick={() =>
+      setFiltro(
+        "excluidas"
+      )
+    }
+  >
+    Excluídas
+  </button>
+
+  <button
+    onClick={() =>
+      setFiltro(
+        "denunciadas"
+      )
+    }
+  >
+    Denunciadas
+  </button>
+
+</div>
+
+     {/* DENÚNCIAS */}
+{
+  denunciasFiltradas.length === 0 ? (
+
+    <p>
+      Nenhuma review encontrada.
+    </p>
 
   ) : (
 
-    denuncias
-      .filter((item) =>
-        item.titulo
-          ?.toLowerCase()
-          .includes(
-            busca.toLowerCase()
-          )
-      )
-   .map(
-  (item) => (
-    <div
-      key={item.id_review}
-      style={{
-        background: "#fff",
-        borderRadius: "14px",
-        padding: "20px",
-        marginBottom: "20px",
-        boxShadow:
-          "0 4px 12px rgba(0,0,0,0.08)",
-        display: "flex",
-        gap: "20px",
-        alignItems: "center",
-      }}
-    >
-            {item.imagem && (
-              <img
-                src={
-                  item.imagem
-                }
-                alt={
-                  item.titulo
-                }
-                style={{
-                  width:
-                    "100%",
-                  maxHeight:
-                    "350px",
-                  objectFit:
-                    "cover",
-                  borderRadius:
-                    "10px",
-                  marginBottom:
-                    "15px",
-                }}
-              />
-            )}
+    denunciasFiltradas.map(
+      (item) => (
+        <div
+          key={item.id_review}
+          style={{
+            background: "#fff",
+            borderRadius: "14px",
+            padding: "20px",
+            marginBottom: "20px",
+            boxShadow:
+              "0 4px 12px rgba(0,0,0,0.08)",
+            display: "flex",
+            gap: "20px",
+            alignItems: "flex-start",
+          }}
+        >
 
-            <h2>
+          {item.imagem && (
+            <img
+              src={item.imagem}
+              alt={item.titulo}
+              style={{
+                width: "180px",
+                height: "120px",
+                objectFit: "cover",
+                borderRadius: "10px",
+                flexShrink: 0,
+              }}
+            />
+          )}
+
+          <div
+            style={{
+              flex: 1,
+            }}
+          >
+
+            <h2
+              style={{
+                marginTop: 0,
+                marginBottom: "10px",
+              }}
+            >
               {item.titulo}
             </h2>
 
             <p>
-              Autor:{" "}
+              <strong>Autor:</strong>{" "}
               {item.autor}
             </p>
 
             <p>
-              ⭐{" "}
-              {item.nota}
-              /5
+              <strong>Nota:</strong>{" "}
+              ⭐ {item.nota}/5
             </p>
 
+            <p
+  style={{
+    fontWeight:
+      "bold",
+    color:
+      item.ativo
+        ? "#27ae60"
+        : "#e74c3c",
+  }}
+>
+  {item.ativo
+    ? "ATIVA"
+    : "EXCLUÍDA"}
+</p>
+
             <p>
-              🚨{" "}
-              {
-                item.denuncias
-              }{" "}
-              denúncias
+              <strong>Denúncias:</strong>{" "}
+              🚨 {item.denuncias}
             </p>
 
             <div
               style={{
-                display:
-                  "flex",
+                display: "flex",
                 gap: "10px",
-                marginTop:
-                  "15px",
-                flexWrap:
-                  "wrap",
+                marginTop: "15px",
+                flexWrap: "wrap",
               }}
             >
               <button
                 onClick={() =>
                   navigate(
-                    `/review/${item.id_review}`
+                    `/admin/review/${item.id_review}`
                   )
                 }
               >
@@ -477,10 +583,15 @@ function AdminPanel() {
               >
                 Limpar Denúncias
               </button>
-            </div>
+
+           </div>
+
           </div>
-        )
+
+        </div>
       )
+    )
+
   )
 }
       </div>

@@ -8,27 +8,91 @@ import AdminPanel from "./pages/AdminPanel";
 import ReviewDetail from "./pages/ReviewDetail";
 import EditReview from "./pages/EditReview";
 import PublicProfile from "./pages/PublicProfile";
+import AdminReviewDetail from "./pages/AdminReviewDetail";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-       <Route path="/login" element={<Login />} />
 
-        <Route path="/home" element={<Home />} />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/create-review" element={<CreateReview />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/admin" element={<AdminPanel />}/>
+        <Route
+          path="/create-review"
+          element={
+            <ProtectedRoute>
+              <CreateReview />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/review/:id" element={<ReviewDetail />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/edit-review/:id" element={<EditReview />} />
+        <Route
+          path="/review/:id"
+          element={
+            <ProtectedRoute>
+              <ReviewDetail />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/profile/:id" element={<PublicProfile />}/>
+        <Route
+          path="/edit-review/:id"
+          element={
+            <ProtectedRoute>
+              <EditReview />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile/:id"
+          element={
+            <ProtectedRoute>
+              <PublicProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/review/:id"
+          element={
+            <ProtectedRoute>
+              <AdminReviewDetail />
+            </ProtectedRoute>
+          }
+        />
 
       </Routes>
     </BrowserRouter>
