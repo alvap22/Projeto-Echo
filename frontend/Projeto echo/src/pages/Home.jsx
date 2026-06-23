@@ -22,6 +22,9 @@ function Home() {
 
   const [reviews, setReviews] = useState([]);
 
+  const token = localStorage.getItem("token");
+const logado = !!token;
+
   useEffect(() => {
     async function fetchReviews() {
       try {
@@ -75,19 +78,41 @@ function Home() {
             setSelectedGenre={setSelectedGenre}
           />
 
-          <div className="review-list">
-            {filteredReviews.map((review) => (
-              <ReviewCard
-                key={review.id}
-                id={review.id}
-                titulo={review.titulo}
-                nota={review.nota}
-                autor={review.autor}
-                genero={review.genero}
-                imagem={review.imagem}
-              />
-            ))}
-          </div>
+         {!logado ? (
+
+  <div
+    style={{
+      textAlign: "center",
+      marginTop: "40px",
+      padding: "30px",
+      borderRadius: "12px",
+      backgroundColor: "#f5f5f5",
+    }}
+  >
+    <h2>🔒 Faça login para visualizar as reviews</h2>
+
+    <p>
+      Entre na sua conta para acessar os conteúdos da comunidade.
+    </p>
+  </div>
+
+) : (
+
+  <div className="review-list">
+    {filteredReviews.map((review) => (
+      <ReviewCard
+        key={review.id}
+        id={review.id}
+        titulo={review.titulo}
+        nota={review.nota}
+        autor={review.autor}
+        genero={review.genero}
+        imagem={review.imagem}
+      />
+    ))}
+  </div>
+
+)}
         </div>
       </div>
     </>

@@ -1,45 +1,84 @@
 import { Link, useNavigate } from "react-router-dom";
+
 import "../styles/header.css";
 
 function Header() {
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
   const logado = !!token;
 
   function handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+
+    localStorage.removeItem(
+      "token"
+    );
+
+    localStorage.removeItem(
+      "usuario"
+    );
 
     navigate("/login");
   }
 
   return (
     <header className="header">
-      <Link to="/home" className="logo">
+
+      <Link
+        to="/home"
+        className="logo"
+      >
         Echo
       </Link>
 
       <nav>
-        <Link to="/create-review">
-          Nova Review
-        </Link>
 
-        <Link to="/profile">
-          Perfil
-        </Link>
-
-        {/* LOGIN / LOGOUT DINÂMICO */}
         {!logado ? (
+
           <Link to="/login">
             Logar
           </Link>
+
         ) : (
-          <button onClick={handleLogout}>
-            Sair
-          </button>
+
+          <>
+
+            <Link to="/create-review">
+              Nova Review
+            </Link>
+
+            <Link to="/profile">
+              Perfil
+            </Link>
+
+            <button
+              onClick={
+                handleLogout
+              }
+              style={{
+                background:
+                  "transparent",
+                border: "none",
+                color: "inherit",
+                cursor:
+                  "pointer",
+                fontSize:
+                  "inherit",
+              }}
+            >
+              Sair
+            </button>
+
+          </>
+
         )}
+
       </nav>
+
     </header>
   );
 }
