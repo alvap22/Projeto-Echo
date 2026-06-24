@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const authRoutes = require(
   "./routes/authRoutes"
 );

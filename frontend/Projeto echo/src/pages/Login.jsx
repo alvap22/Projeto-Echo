@@ -27,6 +27,16 @@ function Login() {
   const [isError, setIsError] =
     useState(false);
 
+    const [
+  mostrarRecuperacao,
+  setMostrarRecuperacao,
+] = useState(false);
+
+const [
+  emailRecuperacao,
+  setEmailRecuperacao,
+] = useState("");
+
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -98,6 +108,37 @@ function Login() {
     }
   }
 
+  async function handleForgotPassword() {
+
+  try {
+
+    const response =
+      await axios.post(
+        "http://localhost:3000/auth/forgot-password",
+        {
+          email:
+            emailRecuperacao,
+        }
+      );
+
+   setMessage(
+  response.data.message
+);
+
+    setIsError(false);
+
+  } catch (error) {
+
+    setMessage(
+      error.response?.data
+        ?.message ||
+        "Erro ao recuperar senha"
+    );
+
+    setIsError(true);
+  }
+}
+
   return (
     <div className="login-container">
       <div className="login-card">
@@ -144,6 +185,66 @@ function Login() {
               )
             }
           />
+
+          {isLogin && (
+            
+
+  <p
+    style={{
+      cursor: "pointer",
+      color: "#4da6ff",
+      marginBottom: "15px",
+    }}
+    onClick={() =>
+      setMostrarRecuperacao(
+        !mostrarRecuperacao
+      )
+    }
+  >
+    Esqueci minha senha
+  </p>
+
+)}
+{
+  mostrarRecuperacao && (
+
+    <div
+      style={{
+        marginBottom:
+          "15px",
+      }}
+    >
+
+      <input
+        type="email"
+        placeholder="Digite seu e-mail"
+        value={
+          emailRecuperacao
+        }
+        onChange={(e) =>
+          setEmailRecuperacao(
+            e.target.value
+          )
+        }
+      />
+
+      <button
+        type="button"
+        onClick={
+          handleForgotPassword
+        }
+        style={{
+          marginTop: "10px",
+          width: "100%",
+        }}
+      >
+        Enviar link
+      </button>
+
+    </div>
+
+  )
+}
 
           {message && (
             <p

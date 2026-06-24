@@ -20,7 +20,7 @@ function authMiddleware(
   try {
     const decoded = jwt.verify(
       token,
-      "segredo_echo"
+      process.env.JWT_SECRET
     );
 
     req.usuario = decoded;

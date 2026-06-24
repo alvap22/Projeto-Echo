@@ -1,3 +1,6 @@
+const transporter =
+  require("../mailer");
+
 const crypto = require("crypto");
 
 const pool = require("../config/db");
@@ -74,12 +77,14 @@ async function login(req, res) {
       [email]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        message:
-          "Usuário não encontrado",
-      });
-    }
+    if (
+  result.rows.length === 0
+) {
+  return res.json({
+    message:
+      "Se o e-mail existir, um link de recuperação foi enviado.",
+  });
+}
 
     const usuario = result.rows[0];
 
@@ -96,15 +101,15 @@ async function login(req, res) {
     }
 
     const token = jwt.sign(
-      {
-        id: usuario.id_usuario,
-        tipo: usuario.tipo,
-      },
-      "segredo_echo",
-      {
-        expiresIn: "7d",
-      }
-    );
+  {
+    id: usuario.id_usuario,
+    tipo: usuario.tipo,
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: "7d",
+  }
+);
 
     res.json({
       message: "Login realizado!",
@@ -185,14 +190,48 @@ async function forgotPassword(req, res) {
       ]
     );
 
-    const link =
-      `http://localhost:5173/reset-password/${token}`;
+    await transporter.sendMail({
+  from:
+    "Echo <SEUEMAIL@gmail.com>",
 
-    res.json({
-      message:
-        "Link de recuperação gerado",
-      link
-    });
+  to: email,
+
+  subject:
+    "Recuperação de senha - Echo",
+
+  html: `
+    <h2>
+      Recuperação de senha
+    </h2>
+
+    <p>
+      Clique no botão abaixo para redefinir sua senha:
+    </p>
+
+    <a
+      href="${link}"
+      style="
+        background:#4da6ff;
+        color:white;
+        padding:12px 20px;
+        text-decoration:none;
+        border-radius:8px;
+        display:inline-block;
+      "
+    >
+      Redefinir senha
+    </a>
+
+    <p>
+      Este link expira em 1 hora.
+    </p>
+  `,
+});
+
+res.json({
+  message:
+    "Se o e-mail existir, um link de recuperação foi enviado.",
+});
 
   } catch (error) {
 

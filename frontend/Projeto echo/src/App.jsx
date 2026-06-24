@@ -1,5 +1,5 @@
+import ResetPassword from "./pages/ResetPassword";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -86,6 +86,13 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+  path="/reset-password/:token"
+  element={
+    <ResetPassword />
+  }
+/>
 
       </Routes>
     </BrowserRouter>

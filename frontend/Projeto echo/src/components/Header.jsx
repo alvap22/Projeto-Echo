@@ -63,7 +63,7 @@ function Header() {
                 background:
                   "transparent",
                 border: "none",
-                color: "inherit",
+                color: "white",
                 cursor:
                   "pointer",
                 fontSize:
