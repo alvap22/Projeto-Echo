@@ -1,10 +1,11 @@
 import { useState } from "react";
 
-import { useParams } from "react-router-dom";
-
-import { useNavigate } from "react-router-dom";
-
 import axios from "axios";
+
+import {
+  useParams,
+  useNavigate,
+} from "react-router-dom";
 
 function ResetPassword() {
 
@@ -29,30 +30,18 @@ function ResetPassword() {
     setMensagem,
   ] = useState("");
 
-  const [
-    erro,
-    setErro,
-  ] = useState(false);
-
   async function handleSubmit(
     e
   ) {
-
     e.preventDefault();
-
-    setMensagem("");
 
     if (
       novaSenha !==
       confirmarSenha
     ) {
-
-      setErro(true);
-
       setMensagem(
         "As senhas não coincidem"
       );
-
       return;
     }
 
@@ -66,57 +55,31 @@ function ResetPassword() {
           }
         );
 
-      setErro(false);
-
       setMensagem(
         response.data.message
       );
 
       setTimeout(() => {
-
         navigate("/login");
-
       }, 2000);
 
     } catch (error) {
 
-      setErro(true);
-
       setMensagem(
         error.response?.data
           ?.message ||
-          "Erro ao redefinir senha"
+        "Erro ao redefinir senha"
       );
     }
   }
 
   return (
+    <div className="login-container">
+      <div className="login-card">
 
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent:
-          "center",
-        alignItems:
-          "center",
-      }}
-    >
-
-      <div
-        style={{
-          width: "400px",
-          padding: "30px",
-          border:
-            "1px solid #ccc",
-          borderRadius:
-            "10px",
-        }}
-      >
-
-        <h1>
+        <h2>
           Redefinir Senha
-        </h1>
+        </h2>
 
         <form
           onSubmit={
@@ -135,13 +98,6 @@ function ResetPassword() {
                 e.target.value
               )
             }
-            style={{
-              width: "100%",
-              padding:
-                "10px",
-              marginBottom:
-                "10px",
-            }}
           />
 
           <input
@@ -155,36 +111,16 @@ function ResetPassword() {
                 e.target.value
               )
             }
-            style={{
-              width: "100%",
-              padding:
-                "10px",
-              marginBottom:
-                "10px",
-            }}
           />
 
           {mensagem && (
-
-            <p
-              style={{
-                color: erro
-                  ? "red"
-                  : "green",
-              }}
-            >
+            <p>
               {mensagem}
             </p>
-
           )}
 
           <button
             type="submit"
-            style={{
-              width: "100%",
-              padding:
-                "10px",
-            }}
           >
             Alterar Senha
           </button>
@@ -192,7 +128,6 @@ function ResetPassword() {
         </form>
 
       </div>
-
     </div>
   );
 }

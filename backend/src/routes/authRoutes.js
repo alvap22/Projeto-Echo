@@ -13,13 +13,11 @@ router.post("/register", register);
 
 router.post("/login", login);
 
-// Recuperar senha
 router.post(
   "/forgot-password",
   forgotPassword
 );
 
-// Redefinir senha
 router.post(
   "/reset-password/:token",
   resetPassword

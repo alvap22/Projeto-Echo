@@ -1,5 +1,6 @@
-require("dotenv").config();
-
+require("dotenv").config({
+  path: "./src/.env",
+});
 const authRoutes = require(
   "./routes/authRoutes"
 );

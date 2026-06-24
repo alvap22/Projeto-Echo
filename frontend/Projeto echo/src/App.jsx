@@ -87,11 +87,9 @@ function App() {
           }
         />
 
-        <Route
+   <Route
   path="/reset-password/:token"
-  element={
-    <ResetPassword />
-  }
+  element={<ResetPassword />}
 />
 
       </Routes>

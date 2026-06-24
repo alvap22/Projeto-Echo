@@ -80,9 +80,9 @@ async function login(req, res) {
     if (
   result.rows.length === 0
 ) {
-  return res.json({
+  return res.status(404).json({
     message:
-      "Se o e-mail existir, um link de recuperação foi enviado.",
+      "Usuário não encontrado",
   });
 }
 
@@ -190,9 +190,12 @@ async function forgotPassword(req, res) {
       ]
     );
 
+const link =
+  `http://localhost:5173/reset-password/${token}`;
+console.log("Tentando enviar email para:", email);
     await transporter.sendMail({
-  from:
-    "Echo <SEUEMAIL@gmail.com>",
+ from:
+  `Echo <${process.env.EMAIL_USER}>`,
 
   to: email,
 
@@ -227,6 +230,7 @@ async function forgotPassword(req, res) {
     </p>
   `,
 });
+console.log("Email enviado com sucesso!");
 
 res.json({
   message:
@@ -235,12 +239,13 @@ res.json({
 
   } catch (error) {
 
-    console.log(error);
+  console.log("ERRO COMPLETO:");
+  console.log(error);
 
-    res.status(500).json({
-      message:
-        "Erro ao recuperar senha"
-    });
+  res.status(500).json({
+    message: error.message
+  });
+
   }
 }
 
