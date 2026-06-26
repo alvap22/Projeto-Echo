@@ -158,3 +158,54 @@
   color: var(--text-secondary);
   margin-top: 5px;
 }
+
+/* ── Estado de erro na área de upload ── */
+.image-upload--error {
+  border-color: rgba(239, 68, 68, 0.6);
+  background-color: rgba(239, 68, 68, 0.04);
+}
+
+/* ── Quando há preview: reduz padding, a área só exibe a imagem ── */
+.image-upload--has-preview {
+  padding: 12px;
+  cursor: default;
+}
+
+/* ── Botão "Remover imagem" — elemento independente abaixo da área ── */
+.btn-remove-image {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: var(--radius-lg);
+  background: rgba(239, 68, 68, 0.08);
+  color: #f87171;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-remove-image:hover {
+  background-color: rgba(239, 68, 68, 0.18);
+  border-color: #f87171;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── Banner de erro do submit ── */
+.submit-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  border-radius: var(--radius-lg);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-weight: 600;
+  font-size: 14px;
+}

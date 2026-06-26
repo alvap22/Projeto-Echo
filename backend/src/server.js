@@ -435,15 +435,40 @@ app.get(
 // =========================
 // CRIAR REVIEW
 // =========================
+
+// Middleware inline para capturar erros do multer antes do handler principal
+function handleUpload(req, res, next) {
+  upload.single("imagem")(req, res, (err) => {
+    if (!err) return next();
+
+    // Arquivo maior que 5 MB
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        message: "A imagem enviada ultrapassa o limite de 5 MB.",
+      });
+    }
+
+    // MIME type ou extensão inválidos (lançado pelo fileFilter)
+    if (err.code === "INVALID_FILE_TYPE") {
+      return res.status(415).json({
+        message: err.message,
+      });
+    }
+
+    // Erro genérico do multer
+    return res.status(400).json({
+      message: "Erro ao processar o arquivo enviado.",
+    });
+  });
+}
+
 app.post(
   "/reviews",
   authMiddleware,
-  upload.single("imagem"),
+  handleUpload,
   async (req, res) => {
     try {
       const { titulo, descricao, nota, genero } = req.body;
-
-     
 
       if (!titulo || titulo.trim() === "") {
         return res.status(400).json({ message: "Título obrigatório" });
@@ -470,8 +495,24 @@ app.post(
       }
 
       // =========================
-      // IMAGEM
+      // IMAGEM — validação secundária no backend
       // =========================
+
+      const ALLOWED_MIME = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
+      const MAX_SIZE     = 5 * 1024 * 1024;
+
+      if (req.file) {
+        if (!ALLOWED_MIME.has(req.file.mimetype.toLowerCase())) {
+          return res.status(415).json({
+            message: "Arquivo inválido. São aceitas apenas imagens JPG, JPEG, PNG ou WEBP.",
+          });
+        }
+        if (req.file.size > MAX_SIZE) {
+          return res.status(400).json({
+            message: "A imagem enviada ultrapassa o limite de 5 MB.",
+          });
+        }
+      }
 
       const imagem = req.file
         ? `http://localhost:3000/uploads/${req.file.filename}`
@@ -523,7 +564,7 @@ app.post(
       });
 
     } catch (error) {
-      console.log(error);
+      console.error("[POST /reviews]", error);
 
       return res.status(500).json({
         message: "Erro ao criar review",
