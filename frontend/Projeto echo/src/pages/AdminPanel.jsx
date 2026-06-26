@@ -292,7 +292,47 @@ const [aba, setAba] =
       textoBotao: "Excluir Review",
       acao: () => executarExcluirReview(id),
     });
-  }  if (carregando) {
+  }
+
+  async function executarRestaurarReview(id) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `http://localhost:3000/admin/reviews/${id}/restaurar`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchDenuncias();
+      fetchDashboard();
+      setMensagemFeedback({
+        texto: response.data.message || "Review restaurada com sucesso.",
+        tipo: "sucesso",
+      });
+      setTimeout(() => setMensagemFeedback(null), 4000);
+    } catch (error) {
+      console.log(error);
+      setMensagemFeedback({
+        texto: error.response?.data?.message || "Erro ao restaurar review.",
+        tipo: "erro",
+      });
+      setTimeout(() => setMensagemFeedback(null), 4000);
+    }
+  }
+
+  function restaurarReview(id) {
+    setConfirmacaoDialog({
+      mensagem: "Deseja restaurar esta review? Ela voltará a ser visível publicamente.",
+      corBotao: "#10b981",
+      textoBotao: "Restaurar Review",
+      acao: () => executarRestaurarReview(id),
+    });
+  }
+
+  if (carregando) {
     return (
       <div className="admin-loading-screen">
         <div className="admin-loading-spinner" />
@@ -830,7 +870,7 @@ const [aba, setAba] =
             denunciasFiltradas.map((item) => (
               <div
                 key={item.id_review}
-                className="admin-card"
+                className={`admin-card${!item.ativo ? " admin-card-inactive" : ""}`}
               >
                 {item.imagem && (
                   <img
@@ -852,15 +892,11 @@ const [aba, setAba] =
                     <strong>Nota:</strong> ⭐ {item.nota}/5
                   </p>
 
-                  <p
-                    style={{
-                      margin: "0 0 8px 0",
-                      fontWeight: "bold",
-                      color: item.ativo ? "#10b981" : "#ef4444",
-                    }}
-                  >
-                    {item.ativo ? "ATIVA" : "EXCLUÍDA"}
-                  </p>
+                  <div style={{ margin: "0 0 8px 0" }}>
+                    <span className={`badge ${item.ativo ? "badge-active" : "badge-inactive"}`}>
+                      {item.ativo ? "ATIVA" : "INATIVA"}
+                    </span>
+                  </div>
 
                   <p style={{ margin: "0 0 15px 0", color: "var(--text-secondary)" }}>
                     <strong>Denúncias:</strong> 🚨 {item.denuncias}
@@ -875,13 +911,30 @@ const [aba, setAba] =
                       Ver Review
                     </button>
 
-                    <button
-                      onClick={() => excluirReview(item.id_review)}
-                      className="btn-danger"
-                      style={{ padding: "8px 14px", fontSize: "13px" }}
-                    >
-                      Excluir Review
-                    </button>
+                    {item.ativo && (
+                      <button
+                        onClick={() => excluirReview(item.id_review)}
+                        className="btn-danger"
+                        style={{ padding: "8px 14px", fontSize: "13px" }}
+                      >
+                        Excluir Review
+                      </button>
+                    )}
+
+                    {!item.ativo && (
+                      <button
+                        onClick={() => restaurarReview(item.id_review)}
+                        className="btn-restore"
+                        style={{ padding: "8px 14px", fontSize: "13px" }}
+                      >
+                        {/* Ícone de restaurar */}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                          <path d="M3 3v5h5"/>
+                        </svg>
+                        Restaurar
+                      </button>
+                    )}
 
                     <button
                       onClick={() => limparDenuncias(item.id_review)}

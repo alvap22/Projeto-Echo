@@ -312,3 +312,33 @@
     margin-top: 15px;
   }
 }
+
+/* Restore Button */
+.btn-restore {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-restore:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+/* Inactive Review Card */
+.admin-card-inactive {
+  opacity: 0.65;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+.admin-card-inactive:hover {
+  opacity: 0.85;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}

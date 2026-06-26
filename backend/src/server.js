@@ -1523,6 +1523,83 @@ app.delete(
 
 
 // =========================
+// RESTAURAR REVIEW (ADM)
+// =========================
+
+app.put(
+  "/admin/reviews/:id/restaurar",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+
+    try {
+
+      const idReview = req.params.id;
+
+      // VERIFICAR SE A REVIEW EXISTE
+
+      const reviewResult = await pool.query(
+        `
+        SELECT id_review, ativo
+        FROM review
+        WHERE id_review = $1
+        `,
+        [idReview]
+      );
+
+      if (reviewResult.rows.length === 0) {
+        return res.status(404).json({
+          message: "Review não encontrada",
+        });
+      }
+
+      // VERIFICAR SE JÁ ESTÁ ATIVA
+
+      if (reviewResult.rows[0].ativo === true) {
+        return res.status(400).json({
+          message: "Esta review já está ativa",
+        });
+      }
+
+      // REATIVAR COMENTÁRIOS DA REVIEW
+
+      await pool.query(
+        `
+        UPDATE comentario
+        SET ativo = TRUE
+        WHERE id_review = $1
+        `,
+        [idReview]
+      );
+
+      // REATIVAR A REVIEW
+
+      await pool.query(
+        `
+        UPDATE review
+        SET ativo = TRUE
+        WHERE id_review = $1
+        `,
+        [idReview]
+      );
+
+      res.json({
+        message: "Review restaurada com sucesso.",
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message: "Erro ao restaurar review",
+      });
+    }
+  }
+);
+
+
+// =========================
 // CRIAR NOVO ADM
 // =========================
 
