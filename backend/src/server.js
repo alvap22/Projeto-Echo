@@ -5,6 +5,10 @@ const authRoutes = require(
   "./routes/authRoutes"
 );
 
+const adminRoutes = require(
+  "./routes/adminRoutes"
+);
+
 const authMiddleware = require(
   "./middleware/authMiddleware"
 );
@@ -35,6 +39,8 @@ app.use(
 );
 
 app.use("/auth", authRoutes);
+
+app.use("/admin", adminRoutes);
 
 app.get("/", (req, res) => {
   res.send(
@@ -1505,6 +1511,7 @@ app.delete(
     }
   }
 );
+
 
 // =========================
 // CRIAR NOVO ADM

@@ -211,12 +211,6 @@ return (
             {usuario.nome}
           </h1>
 
-          
-
-          <p>
-            {usuario.email}
-          </p>
-
           <span>
             {reviews.length}
             {" "}
