@@ -1,178 +1,238 @@
 .review-detail {
   min-height: 100vh;
+  background-color: var(--bg-principal);
+  padding: 60px 20px;
+}
 
-  background-color: #f3f4f6;
-
-  padding: 40px 20px;
+.review-detail-loading {
+  min-height: 100vh;
+  background-color: var(--bg-principal);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-secondary);
 }
 
 .review-detail-content {
   max-width: 900px;
-
   margin: 0 auto;
-
-  background-color: white;
-
-  border-radius: 16px;
-
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-slate);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
-
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-  padding-bottom: 30px;
-}
-
-.back-button {
-  margin: 20px;
-
-  padding: 10px 18px;
-
-  border: none;
-
-  border-radius: 10px;
-
-  background-color: #111827;
-
-  color: white;
-
-  cursor: pointer;
-
-  transition: 0.2s;
-}
-
-.back-button:hover {
-  opacity: 0.85;
+  box-shadow: var(--shadow-xl);
 }
 
 .review-image {
   width: 100%;
-
-  height: 400px;
-
+  max-height: 420px;
   object-fit: cover;
+  border-bottom: 1px solid var(--border-slate);
 }
 
-.review-detail-content h1 {
-  font-size: 38px;
+.review-main-info {
+  padding: 32px;
+}
 
-  color: #111827;
+.review-main-info h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
 
-  padding: 25px 30px 10px;
+.review-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .review-rating {
-  font-size: 22px;
-
+  font-size: 18px;
   font-weight: bold;
-
-  padding: 0 30px;
-
   color: #f59e0b;
 }
 
 .review-author {
-  padding: 10px 30px;
+  color: var(--text-secondary);
+}
 
-  color: #6b7280;
+.author-link {
+  color: var(--cor-principal);
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
 
-  font-size: 15px;
+.author-link:hover {
+  color: var(--cor-hover);
 }
 
 .review-description {
-  padding: 20px 30px;
-}
-
-.review-description h2 {
-  margin-bottom: 12px;
-
-  color: #111827;
-}
-
-.review-description p {
-  line-height: 1.7;
-
-  color: #374151;
-
+  color: var(--text-primary);
   font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 32px;
+  white-space: pre-wrap;
 }
 
-.review-actions {
+.review-actions-bar {
   display: flex;
-
-  gap: 15px;
-
-  padding: 0 30px;
-
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  border-top: 1px solid var(--border-slate);
+  border-bottom: 1px solid var(--border-slate);
+  padding: 16px 0;
 }
 
-.review-actions button {
-  padding: 12px 18px;
+.likes-counter {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
 
+.likes-counter strong {
+  color: var(--text-primary);
+}
+
+.review-actions-bar button.curtido {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.review-divider {
   border: none;
-
-  border-radius: 10px;
-
-  background-color: #111827;
-
-  color: white;
-
-  cursor: pointer;
-
-  transition: 0.2s;
-}
-
-.review-actions button:hover {
-  opacity: 0.85;
-}
-
-.comments-section {
-  margin-top: 40px;
+  border-top: 1px solid var(--border-slate);
+  margin: 40px 0;
 }
 
 .comments-section h2 {
   margin-bottom: 20px;
+  color: var(--text-primary);
+  font-size: 22px;
+  font-weight: 700;
+}
 
-  color: #111827;
+.new-comment-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.new-comment-box textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-slate);
+  background-color: var(--bg-principal);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font-family);
+  resize: vertical;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.new-comment-box textarea:focus {
+  border-color: var(--cor-principal);
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.25);
+}
+
+.new-comment-box button {
+  align-self: flex-end;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .comment-card {
-  background-color: #f3f4f6;
-
-  padding: 16px;
-
-  border-radius: 10px;
-
-  margin-bottom: 15px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-slate);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  position: relative;
 }
 
-.comment-card h4 {
-  margin-bottom: 8px;
-
-  color: #111827;
-}
-
-.comment-card p {
-  color: #374151;
-
-  line-height: 1.5;
-}
-
-.review-like {
+.comment-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-
-  margin-top: 20px;
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 
-.review-like button {
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
+.comment-header strong {
+  color: var(--text-primary);
+}
 
-  cursor: pointer;
+.comment-date {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
 
-  font-weight: bold;
+.comment-text {
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.btn-reply {
+  color: var(--text-secondary);
+}
+
+.btn-reply:hover {
+  color: var(--cor-principal);
+}
+
+.reply-form {
+  margin-top: 16px;
+  padding: 16px;
+  border-left: 3px solid var(--border-slate);
+  background-color: rgba(255, 255, 255, 0.01);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reply-form textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-slate);
+  background-color: var(--bg-principal);
+  color: var(--text-primary);
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+}
+
+.reply-form textarea:focus {
+  border-color: var(--cor-principal);
+}
+
+.reply-card {
+  margin-left: 40px;
+  margin-top: 16px;
+  border-left: 3px solid var(--cor-principal);
+  background-color: rgba(147, 51, 234, 0.03);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
 }
 

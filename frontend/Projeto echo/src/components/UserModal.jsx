@@ -10,12 +10,15 @@ function UserModal({ usuario, onClose }) {
     });
   }
 
+  const isDarkAdmin = usuario.tipo === "admin" || usuario.tipo === "ADMIN";
+
   return (
     <div
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0, 0, 0, 0.55)",
+        background: "rgba(2, 6, 23, 0.7)",
+        backdropFilter: "blur(4px)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -24,11 +27,13 @@ function UserModal({ usuario, onClose }) {
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
+          border: "1px solid var(--border-slate)",
           padding: "30px",
-          borderRadius: "16px",
+          borderRadius: "var(--radius-2xl)",
           width: "480px",
-          boxShadow: "0 10px 35px rgba(0, 0, 0, 0.25)",
+          maxWidth: "90%",
+          boxShadow: "var(--shadow-xl)",
           position: "relative",
         }}
       >
@@ -42,74 +47,57 @@ function UserModal({ usuario, onClose }) {
             border: "none",
             fontSize: "24px",
             cursor: "pointer",
-            color: "#666",
+            color: "var(--text-secondary)",
             lineHeight: "1",
+            transition: "color 0.2s ease",
           }}
+          onMouseOver={(e) => (e.target.style.color = "var(--text-primary)")}
+          onMouseOut={(e) => (e.target.style.color = "var(--text-secondary)")}
         >
           &times;
         </button>
 
-        <h2 style={{ marginTop: 0, marginBottom: "24px", color: "#1e1e1e" }}>
+        <h2 style={{ marginTop: 0, marginBottom: "24px", color: "var(--text-primary)", fontSize: "22px", fontWeight: "700" }}>
           Detalhes do Usuário
         </h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px" }}>
-          <div style={{ borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
-            <span style={{ fontSize: "12px", color: "#777", textTransform: "uppercase", fontWeight: "bold" }}>ID do Usuário</span>
-            <div style={{ fontSize: "16px", fontWeight: "500", marginTop: "4px", color: "#333" }}>{usuario.id_usuario}</div>
+          <div style={{ borderBottom: "1px solid var(--border-slate)", paddingBottom: "10px" }}>
+            <span style={{ fontSize: "11px", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: "600", letterSpacing: "0.05em" }}>ID do Usuário</span>
+            <div style={{ fontSize: "15px", fontWeight: "500", marginTop: "4px", color: "var(--text-primary)", fontFamily: "monospace" }}>{usuario.id_usuario}</div>
           </div>
 
-          <div style={{ borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
-            <span style={{ fontSize: "12px", color: "#777", textTransform: "uppercase", fontWeight: "bold" }}>Nome</span>
-            <div style={{ fontSize: "16px", fontWeight: "500", marginTop: "4px", color: "#333" }}>{usuario.nome}</div>
+          <div style={{ borderBottom: "1px solid var(--border-slate)", paddingBottom: "10px" }}>
+            <span style={{ fontSize: "11px", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: "600", letterSpacing: "0.05em" }}>Nome</span>
+            <div style={{ fontSize: "15px", fontWeight: "500", marginTop: "4px", color: "var(--text-primary)" }}>{usuario.nome}</div>
           </div>
 
-          <div style={{ borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
-            <span style={{ fontSize: "12px", color: "#777", textTransform: "uppercase", fontWeight: "bold" }}>E-mail</span>
-            <div style={{ fontSize: "16px", fontWeight: "500", marginTop: "4px", color: "#333" }}>{usuario.email}</div>
+          <div style={{ borderBottom: "1px solid var(--border-slate)", paddingBottom: "10px" }}>
+            <span style={{ fontSize: "11px", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: "600", letterSpacing: "0.05em" }}>E-mail</span>
+            <div style={{ fontSize: "15px", fontWeight: "500", marginTop: "4px", color: "var(--text-primary)" }}>{usuario.email}</div>
           </div>
 
-          <div style={{ borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
-            <span style={{ fontSize: "12px", color: "#777", textTransform: "uppercase", fontWeight: "bold" }}>Tipo de Usuário</span>
-            <div style={{ marginTop: "4px" }}>
-              <span
-                style={{
-                  background: usuario.tipo === "admin" || usuario.tipo === "ADMIN" ? "#ebf5ff" : "#f3f4f6",
-                  color: usuario.tipo === "admin" || usuario.tipo === "ADMIN" ? "#1e40af" : "#374151",
-                  padding: "4px 10px",
-                  borderRadius: "6px",
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  display: "inline-block",
-                }}
-              >
+          <div style={{ borderBottom: "1px solid var(--border-slate)", paddingBottom: "10px" }}>
+            <span style={{ fontSize: "11px", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: "600", letterSpacing: "0.05em" }}>Tipo de Usuário</span>
+            <div style={{ marginTop: "6px" }}>
+              <span className={`badge ${isDarkAdmin ? "badge-admin" : "badge-user"}`}>
                 {usuario.tipo?.toUpperCase()}
               </span>
             </div>
           </div>
 
-          <div style={{ borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
-            <span style={{ fontSize: "12px", color: "#777", textTransform: "uppercase", fontWeight: "bold" }}>Status da Conta</span>
-            <div style={{ marginTop: "4px" }}>
-              <span
-                style={{
-                  background: usuario.ativo ? "#d1fae5" : "#fee2e2",
-                  color: usuario.ativo ? "#065f46" : "#991b1b",
-                  padding: "4px 10px",
-                  borderRadius: "6px",
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  display: "inline-block",
-                }}
-              >
+          <div style={{ borderBottom: "1px solid var(--border-slate)", paddingBottom: "10px" }}>
+            <span style={{ fontSize: "11px", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: "600", letterSpacing: "0.05em" }}>Status da Conta</span>
+            <div style={{ marginTop: "6px" }}>
+              <span className={`badge ${usuario.ativo ? "badge-active" : "badge-inactive"}`}>
                 {usuario.ativo ? "ATIVO" : "INATIVO"}
               </span>
             </div>
           </div>
 
-          <div style={{ paddingBottom: "10px" }}>
-            <span style={{ fontSize: "12px", color: "#777", textTransform: "uppercase", fontWeight: "bold" }}>Data de Criação</span>
-            <div style={{ fontSize: "16px", fontWeight: "500", marginTop: "4px", color: "#333" }}>
+          <div style={{ paddingBottom: "4px" }}>
+            <span style={{ fontSize: "11px", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: "600", letterSpacing: "0.05em" }}>Data de Criação</span>
+            <div style={{ fontSize: "15px", fontWeight: "500", marginTop: "4px", color: "var(--text-primary)" }}>
               {usuario.data_criacao ? formatarData(usuario.data_criacao) : "Não informada"}
             </div>
           </div>
@@ -118,16 +106,8 @@ function UserModal({ usuario, onClose }) {
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button
             onClick={onClose}
-            style={{
-              background: "#111827",
-              color: "white",
-              border: "none",
-              padding: "10px 20px",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              fontSize: "14px",
-            }}
+            className="btn-secondary"
+            style={{ padding: "8px 16px", fontSize: "14px" }}
           >
             Fechar
           </button>

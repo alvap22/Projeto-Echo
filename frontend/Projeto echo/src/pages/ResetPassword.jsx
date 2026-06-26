@@ -114,13 +114,15 @@ function ResetPassword() {
           />
 
           {mensagem && (
-            <p>
+            <p className={mensagem.includes("coincidem") || mensagem.includes("Erro") ? "error-message" : "success-message"}>
               {mensagem}
             </p>
           )}
 
           <button
             type="submit"
+            className="btn-primary"
+            style={{ width: "100%", padding: "14px" }}
           >
             Alterar Senha
           </button>

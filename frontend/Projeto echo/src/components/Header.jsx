@@ -56,19 +56,8 @@ function Header() {
             </Link>
 
             <button
-              onClick={
-                handleLogout
-              }
-              style={{
-                background:
-                  "transparent",
-                border: "none",
-                color: "white",
-                cursor:
-                  "pointer",
-                fontSize:
-                  "inherit",
-              }}
+              onClick={handleLogout}
+              className="nav-btn-logout"
             >
               Sair
             </button>

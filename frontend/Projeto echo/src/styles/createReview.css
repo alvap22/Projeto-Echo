@@ -1,218 +1,160 @@
 .create-review {
   min-height: 100vh;
-
-  background-color: #f3f4f6;
-
-  padding: 40px 20px;
+  background-color: var(--bg-principal);
+  padding: 60px 20px;
 }
 
 .create-review-content {
   max-width: 700px;
-
   margin: 0 auto;
-
-  background-color: white;
-
-  padding: 35px;
-
-  border-radius: 16px;
-
-  box-shadow: 0 4px 12px
-    rgba(0, 0, 0, 0.08);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-slate);
+  padding: 40px;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
 }
 
 .create-review-content h1 {
   font-size: 32px;
-
-  color: #111827;
-
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 30px;
-
   text-align: center;
 }
 
 .create-review-content form {
   display: flex;
-
   flex-direction: column;
-
   gap: 24px;
 }
 
 .form-group {
   display: flex;
-
   flex-direction: column;
-
   gap: 10px;
 }
 
 .form-group label {
   font-size: 15px;
-
   font-weight: 600;
-
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .create-review-content input,
 .create-review-content select,
 .create-review-content textarea {
   width: 100%;
-
   padding: 14px;
-
-  border-radius: 10px;
-
-  border: 1px solid #d1d5db;
-
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-slate);
   font-size: 15px;
-
   outline: none;
+  background-color: var(--bg-principal);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  transition: all 0.2s ease;
+}
 
-  background-color: white;
+.create-review-content select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
 }
 
 .create-review-content textarea {
   min-height: 180px;
-
   resize: vertical;
 }
 
 .create-review-content input:focus,
 .create-review-content select:focus,
 .create-review-content textarea:focus {
-  border-color: #111827;
+  border-color: var(--cor-principal);
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.25);
 }
 
 .image-upload {
   position: relative;
-
-  border: 2px dashed #d1d5db;
-
-  border-radius: 12px;
-
+  border: 2px dashed var(--border-slate);
+  border-radius: var(--radius-lg);
   padding: 35px;
-
   text-align: center;
-
   cursor: pointer;
-
-  transition: 0.2s;
-
+  transition: all 0.2s ease;
   overflow: hidden;
-
-  background-color: #fafafa;
+  background-color: rgba(255, 255, 255, 0.01);
 }
 
 .image-upload:hover {
-  border-color: #111827;
-
-  background-color: #f9fafb;
+  border-color: var(--cor-principal);
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .image-upload input {
   position: absolute;
-
   inset: 0;
-
   opacity: 0;
-
   cursor: pointer;
-
   z-index: 2;
 }
 
 .image-upload p {
   font-size: 16px;
-
-  color: #111827;
-
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
 .image-upload span {
   font-size: 14px;
-
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .preview-image {
   width: 100%;
-
   max-height: 320px;
-
   object-fit: cover;
-
-  border-radius: 12px;
-
+  border-radius: var(--radius-lg);
   margin-top: 20px;
-
-  border: 1px solid #e5e7eb;
-
-  box-shadow: 0 4px 10px
-    rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-slate);
+  box-shadow: var(--shadow-lg);
 }
 
 .star-rating {
   display: flex;
-
-  gap: 10px;
-
+  gap: 12px;
   justify-content: center;
-
   font-size: 42px;
-
   cursor: pointer;
 }
 
 .star {
-  color: #d1d5db;
-
-  transition: 0.2s;
+  color: var(--border-slate);
+  transition: all 0.2s ease;
 }
 
 .star:hover {
-  transform: scale(1.1);
+  transform: scale(1.2);
 }
 
 .star.active {
   color: #facc15;
-}
-
-.create-review-content button {
-  padding: 15px;
-
-  border: none;
-
-  border-radius: 10px;
-
-  background-color: #111827;
-
-  color: white;
-
-  font-size: 16px;
-
-  font-weight: bold;
-
-  cursor: pointer;
-
-  transition: 0.2s;
-}
-
-.create-review-content button:hover {
-  opacity: 0.85;
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.35);
 }
 
 .error-message {
-  color: #ff4d4d;
+  color: #f87171;
   font-size: 14px;
   margin-top: 5px;
+  font-weight: 500;
 }
 
 .char-counter {
   text-align: right;
   font-size: 12px;
-  color: #888;
+  color: var(--text-secondary);
   margin-top: 5px;
 }

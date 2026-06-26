@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import axios from "axios";
 
@@ -31,6 +31,20 @@ function CreateReview() {
 
     const [erros, setErros] =
   useState({});
+
+  const [listaGeneros, setListaGeneros] = useState([]);
+
+  useEffect(() => {
+    async function fetchGeneros() {
+      try {
+        const response = await axios.get("http://localhost:3000/generos");
+        setListaGeneros(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar gêneros:", error);
+      }
+    }
+    fetchGeneros();
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -241,33 +255,11 @@ await axios.post(
                   Selecione um gênero
                 </option>
 
-                <option value="RPG">
-                  RPG
-                </option>
-
-                <option value="Ação">
-                  Ação
-                </option>
-
-                <option value="Terror">
-                  Terror
-                </option>
-
-                <option value="FPS">
-                  FPS
-                </option>
-
-                <option value="Aventura">
-                  Aventura
-                </option>
-
-                <option value="Indie">
-                  Indie
-                </option>
-
-                <option value="Estratégia">
-                  Estratégia
-                </option>
+                {listaGeneros.map((g) => (
+                  <option key={g.id_genero} value={g.nome}>
+                    {g.nome}
+                  </option>
+                ))}
               </select>
               {erros.genero && (
                 <p className="error-message">
@@ -308,7 +300,7 @@ await axios.post(
             )}
             </div>
 
-            <button type="submit">
+            <button type="submit" className="btn-primary" style={{ width: "100%", padding: "14px" }}>
               Publicar Review
             </button>
           </form>

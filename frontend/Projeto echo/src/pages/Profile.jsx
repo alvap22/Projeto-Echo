@@ -160,24 +160,17 @@ function Profile() {
                 {usuario.email}
               </p>
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: "20px",
-                  marginTop: "8px",
-                  fontWeight: "bold",
-                }}
-              >
+              <div className="profile-stats">
                 <span>
-                  {reviews.length} reviews
+                  <strong>{reviews.length}</strong> reviews
                 </span>
 
                 <span>
-                  {seguidores} seguidores
+                  <strong>{seguidores}</strong> seguidores
                 </span>
 
                 <span>
-                  {seguindo} seguindo
+                  <strong>{seguindo}</strong> seguindo
                 </span>
               </div>
 
@@ -190,26 +183,15 @@ function Profile() {
             usuario.tipo ===
               "admin" && (
               <button
+                className="btn-primary"
                 onClick={() =>
                   navigate(
                     "/admin"
                   )
                 }
                 style={{
-                  marginTop:
-                    "20px",
-                  padding:
-                    "10px 20px",
-                  border: "none",
-                  borderRadius:
-                    "8px",
-                  backgroundColor:
-                    "#ff4d4d",
-                  color: "white",
-                  cursor:
-                    "pointer",
-                  fontWeight:
-                    "bold",
+                  marginTop: "10px",
+                  marginRight: "10px",
                 }}
               >
                 Painel ADM
@@ -218,10 +200,14 @@ function Profile() {
           }
 
           <button
-            className="logout-btn"
+            className="btn-danger"
             onClick={
               handleLogout
             }
+            style={{
+              marginTop: "10px",
+              marginBottom: "30px",
+            }}
           >
             Sair da conta
           </button>
@@ -284,33 +270,37 @@ function Profile() {
                         <div className="review-actions">
 
                           <button
+                            className="btn-secondary"
                             onClick={() =>
                               navigate(
                                 `/review/${review.id}`
                               )
                             }
+                            style={{ padding: "8px 14px", fontSize: "13px" }}
                           >
                             Ver detalhes
                           </button>
 
                           <button
-                            className="edit-btn"
+                            className="btn-primary"
                             onClick={() =>
                               navigate(
                                 `/edit-review/${review.id}`
                               )
                             }
+                            style={{ padding: "8px 14px", fontSize: "13px" }}
                           >
                             Editar
                           </button>
 
                           <button
-                            className="delete-btn"
+                            className="btn-danger"
                             onClick={() =>
                               handleDelete(
                                 review.id
                               )
                             }
+                            style={{ padding: "8px 14px", fontSize: "13px" }}
                           >
                             Excluir
                           </button>

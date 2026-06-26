@@ -17,8 +17,7 @@ import {
 function Home() {
   const [search, setSearch] = useState("");
 
-  const [selectedGenre, setSelectedGenre] =
-    useState("Todos");
+  const [selectedGenres, setSelectedGenres] = useState([]);
 
   const [reviews, setReviews] = useState([]);
 
@@ -28,8 +27,13 @@ const logado = !!token;
   useEffect(() => {
     async function fetchReviews() {
       try {
+        const params = {};
+        if (selectedGenres.length > 0) {
+          params.generos = selectedGenres.join(",");
+        }
         const response = await axios.get(
-          "http://localhost:3000/reviews"
+          "http://localhost:3000/reviews",
+          { params }
         );
 
         setReviews(response.data);
@@ -39,7 +43,7 @@ const logado = !!token;
     }
 
     fetchReviews();
-  }, []);
+  }, [selectedGenres]);
 
   const filteredReviews = reviews.filter(
     (review) => {
@@ -47,11 +51,7 @@ const logado = !!token;
         .toLowerCase()
         .includes(search.toLowerCase());
 
-      const matchGenre =
-        selectedGenre === "Todos" ||
-        review.genero === selectedGenre;
-
-      return matchSearch && matchGenre;
+      return matchSearch;
     }
   );
 
@@ -74,29 +74,19 @@ const logado = !!token;
           />
 
           <GenreFilter
-            selectedGenre={selectedGenre}
-            setSelectedGenre={setSelectedGenre}
+            selectedGenres={selectedGenres}
+            setSelectedGenres={setSelectedGenres}
           />
 
          {!logado ? (
+            <div className="login-required-banner">
+              <h2>🔒 Faça login para visualizar as reviews</h2>
 
-  <div
-    style={{
-      textAlign: "center",
-      marginTop: "40px",
-      padding: "30px",
-      borderRadius: "12px",
-      backgroundColor: "#f5f5f5",
-    }}
-  >
-    <h2>🔒 Faça login para visualizar as reviews</h2>
-
-    <p>
-      Entre na sua conta para acessar os conteúdos da comunidade.
-    </p>
-  </div>
-
-) : (
+              <p>
+                Entre na sua conta para acessar os conteúdos da comunidade.
+              </p>
+            </div>
+          ) : (
 
   <div className="review-list">
     {filteredReviews.map((review) => (

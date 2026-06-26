@@ -211,29 +211,18 @@ return (
             {usuario.nome}
           </h1>
 
-          <span>
-            {reviews.length}
-            {" "}
-            reviews publicadas
-          </span>
+          <div className="profile-stats">
+            <span>
+              <strong>{reviews.length}</strong> reviews
+            </span>
 
-          <div
-            style={{
-              marginTop:
-                "10px"
-            }}
-          >
-            <strong>
-              {seguidores}
-            </strong>
-            {" "}
-            seguidores
-            {" • "}
-            <strong>
-              {seguindo}
-            </strong>
-            {" "}
-            seguindo
+            <span>
+              <strong>{seguidores}</strong> seguidores
+            </span>
+
+            <span>
+              <strong>{seguindo}</strong> seguindo
+            </span>
           </div>
 
           {
@@ -247,7 +236,7 @@ return (
                 {
                   segueUsuario ? (
                     <button
-                      className="logout-btn"
+                      className="btn-danger"
                       onClick={
                         handleDeixarSeguir
                       }
@@ -256,7 +245,7 @@ return (
                     </button>
                   ) : (
                     <button
-                      className="logout-btn"
+                      className="btn-primary"
                       onClick={
                         handleSeguir
                       }
@@ -329,11 +318,13 @@ return (
                     <div className="review-actions">
 
                       <button
+                        className="btn-secondary"
                         onClick={() =>
                           navigate(
                             `/review/${review.id}`
                           )
                         }
+                        style={{ padding: "8px 14px", fontSize: "13px" }}
                       >
                         Ver detalhes
                       </button>

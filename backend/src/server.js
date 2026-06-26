@@ -56,44 +56,53 @@ app.get(
   "/reviews",
   async (req, res) => {
     try {
-      const result =
-        await pool.query(`
-      SELECT
-  review.id_review AS id,
-  review.titulo,
-  review.descricao,
-  review.imagem,
-  review.nota,
-  genero.nome AS genero,
-  usuario.nome AS autor,
+      let genresFilter = null;
+      if (req.query.generos) {
+        if (typeof req.query.generos === 'string') {
+          genresFilter = req.query.generos.split(',').map(g => g.trim()).filter(Boolean);
+        } else if (Array.isArray(req.query.generos)) {
+          genresFilter = req.query.generos.map(g => String(g).trim()).filter(Boolean);
+        }
+      }
 
-  COUNT(DISTINCT curtida.id_curtida) AS curtidas,
-  COUNT(DISTINCT denuncia.id_denuncia) AS denuncias
+      let queryText = `
+        SELECT
+          review.id_review AS id,
+          review.titulo,
+          review.descricao,
+          review.imagem,
+          review.nota,
+          genero.nome AS genero,
+          usuario.nome AS autor,
+          COUNT(DISTINCT curtida.id_curtida) AS curtidas,
+          COUNT(DISTINCT denuncia.id_denuncia) AS denuncias
+        FROM review
+        JOIN usuario
+          ON review.id_usuario = usuario.id_usuario
+        JOIN genero
+          ON review.id_genero = genero.id_genero
+        LEFT JOIN curtida
+          ON review.id_review = curtida.id_review
+        LEFT JOIN denuncia
+          ON review.id_review = denuncia.id_review
+        WHERE review.ativo = TRUE
+      `;
+      const queryParams = [];
 
-FROM review
+      if (genresFilter && genresFilter.length > 0) {
+        queryParams.push(genresFilter);
+        queryText += ` AND genero.nome = ANY($${queryParams.length}::text[])`;
+      }
 
-JOIN usuario
-  ON review.id_usuario = usuario.id_usuario
+      queryText += `
+        GROUP BY
+          review.id_review,
+          genero.nome,
+          usuario.nome
+        ORDER BY review.data_postagem DESC;
+      `;
 
-JOIN genero
-  ON review.id_genero = genero.id_genero
-
-LEFT JOIN curtida
-  ON review.id_review = curtida.id_review
-
-LEFT JOIN denuncia
-  ON review.id_review = denuncia.id_review
-
-WHERE review.ativo = TRUE
-
-GROUP BY
-  review.id_review,
-  genero.nome,
-  usuario.nome
-
-ORDER BY review.data_postagem DESC;
-      `);
-
+      const result = await pool.query(queryText, queryParams);
       res.json(result.rows);
 
     } catch (error) {
@@ -1631,15 +1640,101 @@ if (senha.length < 6) {
 
 
 // =========================
+// BUSCAR TODOS OS GÊNEROS
+// =========================
+app.get("/generos", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id_genero, nome 
+      FROM genero 
+      ORDER BY 
+        CASE WHEN nome = 'Outros' THEN 1 ELSE 0 END, 
+        nome ASC;
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Erro ao buscar gêneros:", error);
+    res.status(500).json({ message: "Erro ao buscar gêneros" });
+  }
+});
+
+// =========================
+// SEED DE GÊNEROS (MIGRAÇÃO)
+// =========================
+async function seedGenres() {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // 1. Garantir que o gênero 'Outros' existe e obter seu ID
+    const outrosRes = await client.query(
+      "INSERT INTO genero (nome) VALUES ('Outros') ON CONFLICT (nome) DO UPDATE SET nome = EXCLUDED.nome RETURNING id_genero"
+    );
+    const outrosId = outrosRes.rows[0].id_genero;
+
+    const newGenres = [
+      'Ação', 'Aventura', 'Comédia', 'Drama', 'Fantasia', 'Ficção Científica', 
+      'Terror', 'Suspense', 'Romance', 'Mistério', 'Documentário', 'Esporte', 
+      'Musical', 'Infantil', 'Slice of Life', 'Histórico', 'Outros'
+    ];
+
+    // 2. Buscar gêneros existentes que não fazem parte da nova lista
+    const currentRes = await client.query("SELECT id_genero, nome FROM genero");
+    const oldGenreIds = [];
+    for (const row of currentRes.rows) {
+      if (!newGenres.includes(row.nome)) {
+        oldGenreIds.push(row.id_genero);
+      }
+    }
+
+    // 3. Atualizar reviews de gêneros antigos para 'Outros'
+    if (oldGenreIds.length > 0) {
+      await client.query(
+        "UPDATE review SET id_genero = $1 WHERE id_genero = ANY($2::int[])",
+        [outrosId, oldGenreIds]
+      );
+      // 4. Deletar gêneros antigos
+      await client.query(
+        "DELETE FROM genero WHERE id_genero = ANY($1::int[])",
+        [oldGenreIds]
+      );
+      console.log(`Migradas as reviews de ${oldGenreIds.length} gêneros antigos e removidos do banco.`);
+    }
+
+    // 5. Inserir todos os novos gêneros
+    for (const genre of newGenres) {
+      await client.query(
+        "INSERT INTO genero (nome) VALUES ($1) ON CONFLICT (nome) DO NOTHING",
+        [genre]
+      );
+    }
+
+    await client.query("COMMIT");
+    console.log("Gêneros sincronizados no banco com sucesso!");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Erro no seed de gêneros:", error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+// =========================
 // INICIAR SERVIDOR
 // =========================
 
 pool
   .connect()
-  .then(() => {
+  .then(async () => {
     console.log(
       "Conectado ao PostgreSQL!"
     );
+    try {
+      await seedGenres();
+    } catch (err) {
+      console.error("Erro ao sincronizar gêneros no banco de dados na inicialização:", err);
+    }
   })
   .catch((err) => {
     console.log(err);

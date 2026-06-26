@@ -39,6 +39,20 @@ function EditReview() {
     const [erros, setErros] =
   useState({});
 
+  const [listaGeneros, setListaGeneros] = useState([]);
+
+  useEffect(() => {
+    async function fetchGeneros() {
+      try {
+        const response = await axios.get("http://localhost:3000/generos");
+        setListaGeneros(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar gêneros:", error);
+      }
+    }
+    fetchGeneros();
+  }, []);
+
   useEffect(() => {
   async function fetchReview() {
     try {
@@ -86,7 +100,7 @@ function EditReview() {
     error.response?.data
   );
 
-  alert(
+  console.error(
     error.response?.data?.message
   );
 
@@ -314,37 +328,14 @@ function EditReview() {
                 }
               >
                 <option value="">
-                  Selecione um
-                  gênero
+                  Selecione um gênero
                 </option>
 
-                <option value="RPG">
-                  RPG
-                </option>
-
-                <option value="Ação">
-                  Ação
-                </option>
-
-                <option value="Terror">
-                  Terror
-                </option>
-
-                <option value="FPS">
-                  FPS
-                </option>
-
-                <option value="Aventura">
-                  Aventura
-                </option>
-
-                <option value="Indie">
-                  Indie
-                </option>
-
-                <option value="Estratégia">
-                  Estratégia
-                </option>
+                {listaGeneros.map((g) => (
+                  <option key={g.id_genero} value={g.nome}>
+                    {g.nome}
+                  </option>
+                ))}
               </select>
               {erros.genero && (
   <p className="error-message">
@@ -386,7 +377,7 @@ function EditReview() {
 )}
             </div>
 
-            <button type="submit">
+            <button type="submit" className="btn-primary" style={{ width: "100%", padding: "14px" }}>
               Salvar Alterações
             </button>
           </form>

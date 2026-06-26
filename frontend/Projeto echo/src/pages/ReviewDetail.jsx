@@ -11,79 +11,38 @@ import {
 import axios from "axios";
 
 import Header from "../components/Header";
+import "../styles/reviewDetail.css";
 
 function ReviewDetail() {
-  const { id } =
-    useParams();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const [review, setReview] =
-    useState(null);
-
-  const [
-    comentarios,
-    setComentarios,
-  ] = useState([]);
-
-  const [
-    textoComentario,
-    setTextoComentario,
-  ] = useState("");
-  const [
-  respostaTexto,
-  setRespostaTexto,
-] = useState("");
-
-const [
-  comentarioRespondendo,
-  setComentarioRespondendo,
-] = useState(null);
-
-const navigate =
-  useNavigate();
-
-  const [curtidas, setCurtidas] =
-    useState(0);
-
-  const [curtido, setCurtido] =
-    useState(false);
+  const [review, setReview] = useState(null);
+  const [comentarios, setComentarios] = useState([]);
+  const [textoComentario, setTextoComentario] = useState("");
+  const [respostaTexto, setRespostaTexto] = useState("");
+  const [comentarioRespondendo, setComentarioRespondendo] = useState(null);
+  const [curtidas, setCurtidas] = useState(0);
+  const [curtido, setCurtido] = useState(false);
+  const [confirmandoDenuncia, setConfirmandoDenuncia] = useState(false);
+  const [feedback, setFeedback] = useState({ message: "", isError: false });
 
   useEffect(() => {
     async function fetchReview() {
       try {
-        const token =
-          localStorage.getItem(
-            "token"
-          );
-
-        const response =
-          await axios.get(
-            `http://localhost:3000/reviews/${id}`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            }
-          );
-
-        setReview(
-          response.data.review
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `http://localhost:3000/reviews/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
-
-        setComentarios(
-          response.data
-            .comentarios
-        );
-
-        setCurtidas(
-          response.data
-            .curtidas
-        );
-
-        setCurtido(
-          response.data
-            .curtido
-        );
+        setReview(response.data.review);
+        setComentarios(response.data.comentarios || []);
+        setCurtidas(response.data.curtidas || 0);
+        setCurtido(response.data.curtido || false);
       } catch (error) {
         console.log(error);
       }
@@ -93,224 +52,143 @@ const navigate =
   }, [id]);
 
   async function handleComentario() {
-    
     try {
-      if (
-        !textoComentario.trim()
-      ) {
-        alert(
-          "Digite um comentário."
-        );
-
+      if (!textoComentario.trim()) {
+        setFeedback({ message: "Digite um comentário.", isError: true });
         return;
       }
-
-      const token =
-        localStorage.getItem(
-          "token"
-        );
+      setFeedback({ message: "", isError: false });
+      const token = localStorage.getItem("token");
 
       await axios.post(
         `http://localhost:3000/reviews/${id}/comentarios`,
-      {
-  texto: textoComentario,
-  id_comentario_pai: null,
-},
+        {
+          texto: textoComentario,
+          id_comentario_pai: null,
+        },
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      const response =
-        await axios.get(
-          `http://localhost:3000/reviews/${id}`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-      setComentarios(
-        response.data
-          .comentarios
+      const response = await axios.get(
+        `http://localhost:3000/reviews/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
+      setComentarios(response.data.comentarios || []);
       setTextoComentario("");
     } catch (error) {
       console.log(error);
     }
   }
-  async function handleResposta(
-  idComentario
-) {
-  try {
 
-    if (
-      !respostaTexto.trim()
-    ) {
-      return;
-    }
-
-    const token =
-      localStorage.getItem(
-        "token"
-      );
-
-    await axios.post(
-      `http://localhost:3000/reviews/${id}/comentarios`,
-      {
-        texto: respostaTexto,
-        id_comentario_pai:
-          idComentario,
-      },
-      {
-        headers: {
-          Authorization:
-            `Bearer ${token}`,
-        },
+  async function handleResposta(idComentario) {
+    try {
+      if (!respostaTexto.trim()) {
+        return;
       }
-    );
+      const token = localStorage.getItem("token");
 
-    const response =
-      await axios.get(
-        `http://localhost:3000/reviews/${id}`,
+      await axios.post(
+        `http://localhost:3000/reviews/${id}/comentarios`,
+        {
+          texto: respostaTexto,
+          id_comentario_pai: idComentario,
+        },
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-    setComentarios(
-      response.data.comentarios
-    );
+      const response = await axios.get(
+        `http://localhost:3000/reviews/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    setRespostaTexto("");
-
-    setComentarioRespondendo(
-      null
-    );
-
-  } catch (error) {
-    console.log(error);
+      setComentarios(response.data.comentarios || []);
+      setRespostaTexto("");
+      setComentarioRespondendo(null);
+    } catch (error) {
+      console.log(error);
+    }
   }
-}
 
   async function handleCurtir() {
     try {
-      const token =
-        localStorage.getItem(
-          "token"
-        );
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `http://localhost:3000/reviews/${id}/curtir`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      const response =
-        await axios.post(
-          `http://localhost:3000/reviews/${id}/curtir`,
-          {},
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-      if (
-        response.data
-          .curtido
-      ) {
+      if (response.data.curtido) {
         setCurtido(true);
-
-        setCurtidas(
-          (prev) => prev + 1
-        );
+        setCurtidas((prev) => prev + 1);
       } else {
         setCurtido(false);
-
-        setCurtidas(
-          (prev) => prev - 1
-        );
+        setCurtidas((prev) => prev - 1);
       }
     } catch (error) {
       console.log(error);
     }
   }
 
-  async function handleDenuncia() {
+  async function handleDenunciaConfirmada() {
     try {
-      const confirmar =
-        window.confirm(
-          "Deseja realmente denunciar esta review?"
-        );
-
-      if (!confirmar) {
-        return;
-      }
-
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      const response =
-        await axios.post(
-          `http://localhost:3000/reviews/${id}/denunciar`,
-          {},
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-      alert(
-        response.data.message
+      setConfirmandoDenuncia(false);
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `http://localhost:3000/reviews/${id}/denunciar`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
+      setFeedback({ message: response.data.message, isError: false });
     } catch (error) {
       console.log(error);
-
-      if (
-        error.response?.data
-          ?.message
-      ) {
-        alert(
-          error.response.data
-            .message
-        );
+      if (error.response?.data?.message) {
+        setFeedback({ message: error.response.data.message, isError: true });
       }
     }
   }
 
-  function formatarData(
-    data
-  ) {
-    return new Date(
-      data
-    ).toLocaleString(
-      "pt-BR",
-      {
-        dateStyle: "short",
-        timeStyle: "short",
-      }
-    );
+  function formatarData(data) {
+    return new Date(data).toLocaleString("pt-BR", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
   }
-const comentariosPrincipais =
-  comentarios.filter(
-    (comentario) =>
-      !comentario.id_comentario_pai
+
+  const comentariosPrincipais = comentarios.filter(
+    (comentario) => !comentario.id_comentario_pai
   );
+
   if (!review) {
     return (
-      <p>
-        Carregando...
-      </p>
+      <div className="review-detail-loading">
+        <p>Carregando...</p>
+      </div>
     );
   }
 
@@ -318,365 +196,177 @@ const comentariosPrincipais =
     <>
       <Header />
 
-      <div
-        style={{
-          maxWidth: "900px",
-          margin:
-            "40px auto",
-          padding: "20px",
-        }}
-      >
-        {review.imagem && (
-          <img
-            src={review.imagem}
-            alt={
-              review.titulo
-            }
-            style={{
-              width: "100%",
-              borderRadius:
-                "12px",
-              marginBottom:
-                "20px",
-            }}
-          />
-        )}
-
-   <h1
-  style={{
-    overflowWrap: "break-word",
-    wordBreak: "break-word"
-  }}
->
-  {review.titulo}
-</h1>
-
-<p
-  style={{
-    overflowWrap: "break-word",
-    wordBreak: "break-word",
-    whiteSpace: "pre-wrap"
-  }}
->
-  {review.descricao}
-</p>
-
-        <span>
-          ⭐ {review.nota}/5
-        </span>
-
-        <p>
-          Gênero:{" "}
-          {review.genero}
-        </p>
-
-<p>
-  Autor:{" "}
-  <span
-    onClick={() =>
-      navigate(
-        `/profile/${review.id_autor}`
-      )
-    }
-    style={{
-      cursor: "pointer",
-      color: "#4da6ff",
-      fontWeight: "bold",
-    }}
-  >
-    {review.autor}
-  </span>
-</p>
-
-        {/* CURTIDAS E DENÚNCIA */}
-
-        <div
-          style={{
-            display: "flex",
-            alignItems:
-              "center",
-            gap: "12px",
-            marginTop:
-              "20px",
-            flexWrap:
-              "wrap",
-          }}
-        >
-          <button
-            onClick={
-              handleCurtir
-            }
-            style={{
-              padding:
-                "10px 18px",
-              border: "none",
-              borderRadius:
-                "8px",
-              cursor:
-                "pointer",
-              fontWeight:
-                "bold",
-            }}
-          >
-            {curtido
-              ? "💔 Descurtir"
-              : "❤️ Curtir"}
-          </button>
-
-          <span>
-            {curtidas}{" "}
-            curtidas
-          </span>
-
-          <button
-            onClick={
-              handleDenuncia
-            }
-            style={{
-              padding:
-                "10px 18px",
-              border: "none",
-              borderRadius:
-                "8px",
-              cursor:
-                "pointer",
-              fontWeight:
-                "bold",
-              backgroundColor:
-                "#ff4d4d",
-              color: "white",
-            }}
-          >
-            🚨 Denunciar
-          </button>
-        </div>
-
-        <hr
-          style={{
-            margin:
-              "30px 0",
-          }}
-        />
-
-        <h2>
-          Comentários
-        </h2>
-
-        <textarea
-          placeholder="Escreva um comentário..."
-          value={
-            textoComentario
-          }
-          onChange={(e) =>
-            setTextoComentario(
-              e.target.value
-            )
-          }
-          style={{
-            width: "100%",
-            minHeight:
-              "100px",
-            padding:
-              "10px",
-            marginTop:
-              "10px",
-          }}
-        />
-
-        <button
-          onClick={
-            handleComentario
-          }
-          style={{
-            marginTop:
-              "10px",
-            padding:
-              "10px 20px",
-          }}
-        >
-          Comentar
-        </button>
-
-        <div
-          style={{
-            marginTop:
-              "30px",
-          }}
-        >
-          {comentariosPrincipais.map(
-            (
-              comentario
-            ) => (
-              <div
-                key={
-                  comentario.id_comentario
-                }
-                style={{
-                  border:
-                    "1px solid #ccc",
-                  padding:
-                    "12px",
-                  borderRadius:
-                    "10px",
-                  marginBottom:
-                    "12px",
-                }}
-              >
-                <div
-                  style={{
-                    display:
-                      "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems:
-                      "center",
-                    marginBottom:
-                      "8px",
-                  }}
-                >
-                  <strong>
-                    {
-                      comentario.autor
-                    }
-                  </strong>
-
-                  <span
-                    style={{
-                      fontSize:
-                        "12px",
-                      color:
-                        "#777",
-                    }}
-                  >
-                    {formatarData(
-                      comentario.data_comentario
-                    )}
-                  </span>
-                </div>
-
-                <p>
-                  {
-                    comentario.texto
-                  }
-                </p>
-                <button
-  onClick={() =>
-    setComentarioRespondendo(
-      comentario.id_comentario
-    )
-  }
-  style={{
-    marginTop: "8px",
-    padding: "5px 10px",
-    cursor: "pointer",
-  }}
->
-  Responder
-</button>
-
-{
-  comentarioRespondendo ===
-    comentario.id_comentario && (
-
-    <div
-      style={{
-        marginTop: "10px",
-      }}
-    >
-
-      <textarea
-        placeholder="Digite sua resposta..."
-        value={respostaTexto}
-        onChange={(e) =>
-          setRespostaTexto(
-            e.target.value
-          )
-        }
-        style={{
-          width: "100%",
-          minHeight: "60px",
-          padding: "8px",
-        }}
-      />
-
-      <button
-        onClick={() =>
-          handleResposta(
-            comentario.id_comentario
-          )
-        }
-        style={{
-          marginTop: "8px",
-        }}
-      >
-        Enviar resposta
-      </button>
-
-    </div>
-  )
-}
-{
-  comentarios
-    .filter(
-      (resposta) =>
-        resposta.id_comentario_pai ===
-        comentario.id_comentario
-    )
-    .map((resposta) => (
-
-      <div
-        key={
-          resposta.id_comentario
-        }
-        style={{
-          marginLeft: "40px",
-          marginTop: "10px",
-          padding: "10px",
-          borderLeft:
-            "3px solid #666",
-          background:
-            "#f5f5f5",
-          borderRadius: "6px",
-        }}
-      >
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent:
-              "space-between",
-            marginBottom: "5px",
-          }}
-        >
-
-          <strong>
-            {resposta.autor}
-          </strong>
-
-          <span
-            style={{
-              fontSize: "12px",
-              color: "#777",
-            }}
-          >
-            {formatarData(
-              resposta.data_comentario
-            )}
-          </span>
-
-        </div>
-
-        <p>
-          {resposta.texto}
-        </p>
-
-      </div>
-
-    ))
-}
-              </div>
-            )
+      <div className="review-detail">
+        <div className="review-detail-content">
+          {review.imagem && (
+            <img
+              src={review.imagem}
+              alt={review.titulo}
+              className="review-image"
+            />
           )}
+
+          <div className="review-main-info">
+            <h1>{review.titulo}</h1>
+
+            <div className="review-meta">
+              <span className="review-rating">⭐ {review.nota}/5</span>
+              <span className="badge badge-genre">{review.genero}</span>
+              <span className="review-author">
+                Autor:{" "}
+                <strong
+                  onClick={() => navigate(`/profile/${review.id_autor}`)}
+                  className="author-link"
+                >
+                  {review.autor}
+                </strong>
+              </span>
+            </div>
+
+            <p className="review-description">{review.descricao}</p>
+
+            {feedback.message && (
+              <div className={`alert-feedback ${feedback.isError ? "alert-error" : "alert-success"}`}>
+                <span>{feedback.message}</span>
+                <button onClick={() => setFeedback({ message: "", isError: false })} className="btn-ghost" style={{ padding: "0 5px", fontSize: "16px" }}>&times;</button>
+              </div>
+            )}
+
+            {confirmandoDenuncia && (
+              <div className="alert-feedback alert-warning" style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-start', margin: '20px 0' }}>
+                <span style={{ fontWeight: "600" }}>🔒 Deseja realmente denunciar esta review?</span>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button className="btn-danger" onClick={handleDenunciaConfirmada} style={{ padding: '6px 12px', fontSize: '13px' }}>Sim, denunciar</button>
+                  <button className="btn-secondary" onClick={() => setConfirmandoDenuncia(false)} style={{ padding: '6px 12px', fontSize: '13px' }}>Cancelar</button>
+                </div>
+              </div>
+            )}
+
+            <div className="review-actions-bar">
+              <button
+                onClick={handleCurtir}
+                className={`btn-secondary ${curtido ? "curtido" : ""}`}
+              >
+                {curtido ? "💔 Descurtir" : "❤️ Curtir"}
+              </button>
+
+              <span className="likes-counter">
+                <strong>{curtidas}</strong> curtidas
+              </span>
+
+              <button
+                onClick={() => setConfirmandoDenuncia(true)}
+                className="btn-danger"
+                style={{ marginLeft: "auto" }}
+              >
+                🚨 Denunciar
+              </button>
+            </div>
+
+            <hr className="review-divider" />
+
+            <div className="comments-section">
+              <h2>Comentários</h2>
+
+              <div className="new-comment-box">
+                <textarea
+                  placeholder="Escreva um comentário..."
+                  value={textoComentario}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 300) {
+                      setTextoComentario(e.target.value);
+                    }
+                  }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="char-counter">{textoComentario.length}/300</span>
+                  <button onClick={handleComentario} className="btn-primary" disabled={textoComentario.length > 300}>
+                    Comentar
+                  </button>
+                </div>
+              </div>
+
+              <div className="comments-list">
+                {comentariosPrincipais.map((comentario) => (
+                  <div
+                    key={comentario.id_comentario}
+                    className="comment-card"
+                  >
+                    <div className="comment-header">
+                      <strong>{comentario.autor}</strong>
+                      <span className="comment-date">
+                        {formatarData(comentario.data_comentario)}
+                      </span>
+                    </div>
+
+                    <p className="comment-text">{comentario.texto}</p>
+                    
+                    <button
+                      onClick={() => setComentarioRespondendo(comentario.id_comentario)}
+                      className="btn-ghost btn-reply"
+                      style={{ padding: "4px 8px", fontSize: "12px", marginTop: "8px" }}
+                    >
+                      Responder
+                    </button>
+
+                    {comentarioRespondendo === comentario.id_comentario && (
+                      <div className="reply-form">
+                        <textarea
+                          placeholder="Digite sua resposta..."
+                          value={respostaTexto}
+                          onChange={(e) => {
+                            if (e.target.value.length <= 300) {
+                              setRespostaTexto(e.target.value);
+                            }
+                          }}
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                          <span className="char-counter">{respostaTexto.length}/300</span>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              onClick={() => handleResposta(comentario.id_comentario)}
+                              className="btn-primary"
+                              style={{ padding: "6px 12px", fontSize: "13px" }}
+                              disabled={respostaTexto.length > 300}
+                            >
+                              Enviar resposta
+                            </button>
+                            <button
+                              onClick={() => setComentarioRespondendo(null)}
+                              className="btn-secondary"
+                              style={{ padding: "6px 12px", fontSize: "13px" }}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {comentarios
+                      .filter(
+                        (resposta) =>
+                          resposta.id_comentario_pai === comentario.id_comentario
+                      )
+                      .map((resposta) => (
+                        <div
+                          key={resposta.id_comentario}
+                          className="comment-card reply-card"
+                        >
+                          <div className="comment-header">
+                            <strong>{resposta.autor}</strong>
+                            <span className="comment-date">
+                              {formatarData(resposta.data_comentario)}
+                            </span>
+                          </div>
+                          <p className="comment-text">{resposta.texto}</p>
+                        </div>
+                      ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>

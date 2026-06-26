@@ -22,16 +22,16 @@ function ReviewCard(props) {
       <div className="review-info">
         <h2>{props.titulo}</h2>
 
-        <p className="review-note">
+        <div className="review-note">
           ⭐ {props.nota}/5
-        </p>
+        </div>
 
-        <p className="review-meta">
-          Por {props.autor} •{" "}
-          {props.genero}
-        </p>
+        <div className="review-meta">
+          Por <span className="review-author">{props.autor}</span> • <span className="badge badge-genre">{props.genero}</span>
+        </div>
 
         <button
+          className="btn-primary"
           onClick={handleOpenReview}
         >
           Ver Review Completa
