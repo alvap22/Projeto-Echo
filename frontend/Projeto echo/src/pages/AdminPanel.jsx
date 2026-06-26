@@ -690,6 +690,15 @@ const [aba, setAba] =
                         </button>
                         <button
                           onClick={() => {
+                            const usuarioLogado = JSON.parse(localStorage.getItem("usuario"));
+                            if (usuarioLogado && Number(user.id_usuario) === Number(usuarioLogado.id)) {
+                              setMensagemFeedback({
+                                texto: "Você não pode suspender a conta que está utilizando no momento.",
+                                tipo: "erro",
+                              });
+                              setTimeout(() => setMensagemFeedback(null), 4000);
+                              return;
+                            }
                             setConfirmacaoDialog({
                               mensagem: `Tem certeza que deseja ${user.ativo ? "desativar" : "ativar"} o usuário ${user.nome}?`,
                               corBotao: user.ativo ? "#b91c1c" : "#10b981",

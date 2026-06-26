@@ -68,8 +68,8 @@ async function toggleStatusUsuario(req, res) {
     const { id } = req.params;
 
     if (Number(id) === Number(req.usuario.id)) {
-      return res.status(400).json({
-        message: "Você não pode alterar o status do seu próprio usuário",
+      return res.status(403).json({
+        message: "Você não pode suspender sua própria conta.",
       });
     }
 

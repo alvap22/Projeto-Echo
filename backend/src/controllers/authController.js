@@ -100,6 +100,13 @@ async function login(req, res) {
       });
     }
 
+    if (!usuario.ativo) {
+      return res.status(403).json({
+        message:
+          "Sua conta foi suspensa. Caso acredite que isso seja um engano, entre em contato com um administrador.",
+      });
+    }
+
     const token = jwt.sign(
   {
     id: usuario.id_usuario,
