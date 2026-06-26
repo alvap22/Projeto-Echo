@@ -1,0 +1,88 @@
+/* =========================================================
+   Review Image Placeholder
+   Banner exibido quando a review não possui imagem.
+   Segue a identidade visual do site (tons escuros/roxos).
+   ========================================================= */
+
+.review-placeholder {
+  position: relative;
+  width: 100%;
+  height: 220px; /* mesma altura de .review-image */
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-slate);
+  border-radius: 0; /* o card pai já tem border-radius e overflow:hidden */
+
+  /* Gradiente escuro com tons roxos do site */
+  background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 50%, #1e1b4b 100%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: filter 0.25s ease, transform 0.25s ease;
+}
+
+/* Hover no card pai aplica efeito no placeholder */
+.review-card:hover .review-placeholder {
+  filter: brightness(1.12);
+  transform: scale(1.02);
+}
+
+/* ── Padrão SVG discreto (pontos) ── */
+.review-placeholder-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05; /* 5% — extremamente discreto */
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Iluminação radial atrás do ícone ── */
+.review-placeholder-glow {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(167, 139, 250, 0.18) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* ── Conteúdo central ── */
+.review-placeholder-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 1;
+  user-select: none;
+}
+
+/* Ícone grande */
+.review-placeholder-icon {
+  font-size: 42px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+}
+
+/* Nome da categoria */
+.review-placeholder-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(196, 181, 253, 0.85); /* lilás suave */
+}
+
+/* Texto auxiliar "Sem imagem" */
+.review-placeholder-hint {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(148, 163, 184, 0.55); /* --text-secondary com opacidade */
+  text-transform: uppercase;
+}
