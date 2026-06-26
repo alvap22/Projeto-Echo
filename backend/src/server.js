@@ -49,69 +49,108 @@ app.get("/", (req, res) => {
 });
 
 // =========================
-// BUSCAR TODAS AS REVIEWS
+// BUSCAR REVIEWS (PAGINADO)
 // =========================
 
 app.get(
   "/reviews",
   async (req, res) => {
     try {
+      // --- Parâmetros de paginação ---
+      const page  = Math.max(1, parseInt(req.query.page)  || 1);
+      const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 9));
+      const offset = (page - 1) * limit;
+
+      // --- Parâmetros de filtro ---
+      const search = (req.query.search || "").trim();
+      const sort   = req.query.sort === "antigas" ? "ASC" : "DESC";
+
       let genresFilter = null;
       if (req.query.generos) {
-        if (typeof req.query.generos === 'string') {
-          genresFilter = req.query.generos.split(',').map(g => g.trim()).filter(Boolean);
-        } else if (Array.isArray(req.query.generos)) {
-          genresFilter = req.query.generos.map(g => String(g).trim()).filter(Boolean);
+        const raw = req.query.generos;
+        if (typeof raw === "string") {
+          genresFilter = raw.split(",").map((g) => g.trim()).filter(Boolean);
+        } else if (Array.isArray(raw)) {
+          genresFilter = raw.map((g) => String(g).trim()).filter(Boolean);
         }
       }
 
-      let queryText = `
+      // --- Construção dinâmica das cláusulas WHERE ---
+      const queryParams = [];
+      const conditions  = ["review.ativo = TRUE"];
+
+      if (search) {
+        queryParams.push(`%${search}%`);
+        conditions.push(`review.titulo ILIKE $${queryParams.length}`);
+      }
+
+      if (genresFilter && genresFilter.length > 0) {
+        queryParams.push(genresFilter);
+        conditions.push(`genero.nome = ANY($${queryParams.length}::text[])`);
+      }
+
+      const whereClause = conditions.join(" AND ");
+
+      // --- Query principal com paginação ---
+      const dataParams = [...queryParams, limit, offset];
+
+      const dataQuery = `
         SELECT
-          review.id_review AS id,
+          review.id_review  AS id,
           review.titulo,
           review.descricao,
           review.imagem,
           review.nota,
-          genero.nome AS genero,
-          usuario.nome AS autor,
-          COUNT(DISTINCT curtida.id_curtida) AS curtidas,
+          review.data_postagem,
+          genero.nome       AS genero,
+          usuario.nome      AS autor,
+          COUNT(DISTINCT curtida.id_curtida)   AS curtidas,
           COUNT(DISTINCT denuncia.id_denuncia) AS denuncias
         FROM review
-        JOIN usuario
-          ON review.id_usuario = usuario.id_usuario
-        JOIN genero
-          ON review.id_genero = genero.id_genero
-        LEFT JOIN curtida
-          ON review.id_review = curtida.id_review
-        LEFT JOIN denuncia
-          ON review.id_review = denuncia.id_review
-        WHERE review.ativo = TRUE
-      `;
-      const queryParams = [];
-
-      if (genresFilter && genresFilter.length > 0) {
-        queryParams.push(genresFilter);
-        queryText += ` AND genero.nome = ANY($${queryParams.length}::text[])`;
-      }
-
-      queryText += `
+        JOIN usuario  ON review.id_usuario = usuario.id_usuario
+        JOIN genero   ON review.id_genero  = genero.id_genero
+        LEFT JOIN curtida  ON review.id_review = curtida.id_review
+        LEFT JOIN denuncia ON review.id_review = denuncia.id_review
+        WHERE ${whereClause}
         GROUP BY
           review.id_review,
           genero.nome,
           usuario.nome
-        ORDER BY review.data_postagem DESC;
+        ORDER BY review.data_postagem ${sort}
+        LIMIT $${dataParams.length - 1}
+        OFFSET $${dataParams.length}
       `;
 
-      const result = await pool.query(queryText, queryParams);
-      res.json(result.rows);
+      // --- Query de contagem total ---
+      const countQuery = `
+        SELECT COUNT(DISTINCT review.id_review) AS total
+        FROM review
+        JOIN usuario  ON review.id_usuario = usuario.id_usuario
+        JOIN genero   ON review.id_genero  = genero.id_genero
+        WHERE ${whereClause}
+      `;
+
+      const [dataResult, countResult] = await Promise.all([
+        pool.query(dataQuery,  dataParams),
+        pool.query(countQuery, queryParams),
+      ]);
+
+      const totalReviews = parseInt(countResult.rows[0].total, 10);
+      const totalPaginas = Math.ceil(totalReviews / limit);
+      const temMais      = page < totalPaginas;
+
+      res.json({
+        reviews:      dataResult.rows,
+        pagina:       page,
+        limite:       limit,
+        totalReviews,
+        totalPaginas,
+        temMais,
+      });
 
     } catch (error) {
-      console.log(error);
-
-      res.status(500).json({
-        message:
-          "Erro ao buscar reviews",
-      });
+      console.error("[GET /reviews]", error);
+      res.status(500).json({ message: "Erro ao buscar reviews" });
     }
   }
 );
