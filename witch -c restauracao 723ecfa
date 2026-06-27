@@ -1,0 +1,20 @@
+[33m062f5a9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Add vercel.json rewrite, .env with VITE_API_URL, fix upload URL, use env var for API baseURL
+[33m7429491[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m adjust
+[33m723ecfa[m Ajustes no carregamento das imagens no sistema
+[33m70f1955[m Adição na tela da home de carregamento de reviews
+[33m37c4c9a[m att na tela do adm
+[33mc0eb0cd[m criação do componente para preencher as imagens vazias das reviews
+[33mea19a3d[m restaurar reviews
+[33m5ca79ed[m Atualizações gerais
+[33m9063628[m alterações da tela de admin
+[33mb39542f[m Arrumando painel do ADM
+[33md681556[m parte de recuperação de emai implementada
+[33mfd3ddba[m criação do email de recuperação
+[33m7c2ed60[m criação do "esqueci a senha"
+[33m5cae880[m att da pagina do adm e token
+[33m0d750b8[m add buscas do adm e seguindo no perfil do usuario
+[33ma73e3e2[m add a parte de seguir usuarios
+[33m17a7364[m Atualizações
+[33meff4080[m test
+[33m89e1215[m teste
+[33mdfcf1a1[m first commit
