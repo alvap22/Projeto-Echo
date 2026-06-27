@@ -56,26 +56,11 @@ axios.interceptors.response.use(
 );
 
 // 4. Instância centralizada e configurada exportada como padrão
+// O header `ngrok-skip-browser-warning` é obrigatório quando o backend
+// está exposto via Ngrok free tier — sem ele, o Ngrok retorna uma página
+// HTML de aviso ao invés do JSON esperado, causando erros de CORS/Network.
 const api = axios.create({
-  baseURL: NGROK_URL,
-  headers: {
-    "ngrok-skip-browser-warning": "true",
-  },
-});
-
-export default api;
-
-import axios from "axios";
-
-/**
- * Instância central do Axios para o backend.
- *
- * O header `ngrok-skip-browser-warning` é obrigatório quando o backend
- * está exposto via Ngrok free tier — sem ele, o Ngrok retorna uma página
- * HTML de aviso ao invés do JSON esperado, causando erros de CORS/Network.
- */
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || NGROK_URL,
   headers: {
     "ngrok-skip-browser-warning": "true",
   },
