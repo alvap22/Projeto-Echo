@@ -34,9 +34,11 @@ app.use(
     origin: [
       /^https?:\/\/([a-zA-Z0-9-]+\.)*ngrok-free\.(dev|app)$/,
       /^https?:\/\/([a-zA-Z0-9-]+\.)*ngrok\.io$/,
+      /^https?:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/,
       "http://localhost:3000",
       "http://localhost:5173",
-      "http://127.0.0.1:5173"
+      "http://127.0.0.1:5173",
+      "https://projeto-echo-front.vercel.app"
     ],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "ngrok-skip-browser-warning"]
