@@ -829,72 +829,116 @@ const [aba, setAba] =
                   />
                 )}
 
-                <div style={{ flex: 1 }}>
-                  <h2 style={{ marginTop: 0, marginBottom: "10px", color: "var(--text-primary)" }}>
-                    {item.titulo}
-                  </h2>
+                <div
+  style={{
+    flex: 1,
+    minWidth: 0,
+    overflow: "hidden",
+  }}
+>
+  <h2
+    style={{
+      marginTop: 0,
+      marginBottom: "10px",
+      color: "var(--text-primary)",
 
-                  <p style={{ margin: "0 0 5px 0", color: "var(--text-secondary)" }}>
-                    <strong>Autor:</strong> {item.autor}
-                  </p>
+      overflowWrap: "break-word",
+      wordBreak: "break-word",
+      wordWrap: "break-word",
+      whiteSpace: "normal",
+      maxWidth: "100%",
+    }}
+  >
+    {item.titulo}
+  </h2>
 
-                  <p style={{ margin: "0 0 5px 0", color: "var(--text-secondary)" }}>
-                    <strong>Nota:</strong> ⭐ {item.nota}/5
-                  </p>
+  <p
+    style={{
+      margin: "0 0 5px 0",
+      color: "var(--text-secondary)",
+      overflowWrap: "break-word",
+      wordBreak: "break-word",
+    }}
+  >
+    <strong>Autor:</strong> {item.autor}
+  </p>
 
-                  <div style={{ margin: "0 0 8px 0" }}>
-                    <span className={`badge ${item.ativo ? "badge-active" : "badge-inactive"}`}>
-                      {item.ativo ? "ATIVA" : "INATIVA"}
-                    </span>
-                  </div>
+  <p
+    style={{
+      margin: "0 0 5px 0",
+      color: "var(--text-secondary)",
+    }}
+  >
+    <strong>Nota:</strong> ⭐ {item.nota}/5
+  </p>
 
-                  <p style={{ margin: "0 0 15px 0", color: "var(--text-secondary)" }}>
-                    <strong>Denúncias:</strong> 🚨 {item.denuncias}
-                  </p>
+  <div style={{ margin: "0 0 8px 0" }}>
+    <span className={`badge ${item.ativo ? "badge-active" : "badge-inactive"}`}>
+      {item.ativo ? "ATIVA" : "INATIVA"}
+    </span>
+  </div>
 
-                  <div className="admin-card-buttons">
-                    <button
-                      onClick={() => navigate(`/admin/review/${item.id_review}`)}
-                      className="btn-secondary"
-                      style={{ padding: "8px 14px", fontSize: "13px" }}
-                    >
-                      Ver Review
-                    </button>
+  <p
+    style={{
+      margin: "0 0 15px 0",
+      color: "var(--text-secondary)",
+    }}
+  >
+    <strong>Denúncias:</strong> 🚨 {item.denuncias}
+  </p>
 
-                    {item.ativo && (
-                      <button
-                        onClick={() => excluirReview(item.id_review)}
-                        className="btn-danger"
-                        style={{ padding: "8px 14px", fontSize: "13px" }}
-                      >
-                        Excluir Review
-                      </button>
-                    )}
+  <div className="admin-card-buttons">
+    <button
+      onClick={() => navigate(`/admin/review/${item.id_review}`)}
+      className="btn-secondary"
+      style={{ padding: "8px 14px", fontSize: "13px" }}
+    >
+      Ver Review
+    </button>
 
-                    {!item.ativo && (
-                      <button
-                        onClick={() => restaurarReview(item.id_review)}
-                        className="btn-restore"
-                        style={{ padding: "8px 14px", fontSize: "13px" }}
-                      >
-                        {/* Ícone de restaurar */}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                          <path d="M3 3v5h5"/>
-                        </svg>
-                        Restaurar
-                      </button>
-                    )}
+    {item.ativo && (
+      <button
+        onClick={() => excluirReview(item.id_review)}
+        className="btn-danger"
+        style={{ padding: "8px 14px", fontSize: "13px" }}
+      >
+        Excluir Review
+      </button>
+    )}
 
-                    <button
-                      onClick={() => limparDenuncias(item.id_review)}
-                      className="btn-primary"
-                      style={{ padding: "8px 14px", fontSize: "13px" }}
-                    >
-                      Limpar Denúncias
-                    </button>
-                  </div>
-                </div>
+    {!item.ativo && (
+      <button
+        onClick={() => restaurarReview(item.id_review)}
+        className="btn-restore"
+        style={{ padding: "8px 14px", fontSize: "13px" }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+        </svg>
+        Restaurar
+      </button>
+    )}
+
+    <button
+      onClick={() => limparDenuncias(item.id_review)}
+      className="btn-primary"
+      style={{ padding: "8px 14px", fontSize: "13px" }}
+    >
+      Limpar Denúncias
+    </button>
+  </div>
+</div>
               </div>
             ))
           )
