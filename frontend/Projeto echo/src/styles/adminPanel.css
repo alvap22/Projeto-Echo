@@ -146,6 +146,12 @@
   align-items: flex-start;
   transition: all 0.2s ease;
   box-sizing: border-box;
+  /* Previne overflow de texto fora do card */
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .admin-card:hover {
@@ -161,6 +167,26 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-slate);
   flex-shrink: 0;
+  min-width: 0;
+}
+
+/* Previne overflow de texto em todo conteúdo interno do admin-card */
+.admin-card h2,
+.admin-card h3,
+.admin-card p,
+.admin-card span,
+.admin-card a {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+/* Container de texto dentro do admin-card precisa de min-width: 0 para flex funcionar */
+.admin-card > div {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .admin-card-buttons {
@@ -182,6 +208,31 @@
   align-items: center;
   transition: all 0.2s ease;
   box-sizing: border-box;
+  /* Previne overflow de texto fora do card */
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Previne overflow de texto em todo conteúdo interno do user-card */
+.user-card h2,
+.user-card h3,
+.user-card p,
+.user-card span,
+.user-card a {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+/* Container de texto dentro do user-card precisa de min-width: 0 para flex funcionar */
+.user-card > div {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .user-card:hover {
