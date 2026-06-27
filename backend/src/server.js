@@ -1,6 +1,8 @@
 require("dotenv").config({
   path: "./src/.env",
 });
+
+const path = require("path");
 const authRoutes = require(
   "./routes/authRoutes"
 );
@@ -47,9 +49,11 @@ app.use(
 
 app.use(express.json());
 
+// Serve os arquivos de upload via caminho absoluto — funciona independente
+// de onde o processo Node.js seja iniciado.
 app.use(
   "/uploads",
-  express.static("src/uploads")
+  express.static(path.join(__dirname, "uploads"))
 );
 
 app.use("/auth", authRoutes);
@@ -528,10 +532,11 @@ app.post(
         }
       }
 
-      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
-      const host = req.headers["x-forwarded-host"] || req.get("host");
+      // Monta a URL pública usando BACKEND_URL do .env.
+      // Ao trocar o endereço do Ngrok, basta atualizar essa variável.
+      const backendUrl = (process.env.BACKEND_URL || "").replace(/\/$/, "");
       const imagem = req.file
-        ? `${protocol}://${host}/uploads/${req.file.filename}`
+        ? `${backendUrl}/uploads/${req.file.filename}`
         : null;
 
       const idUsuario = req.usuario.id;
@@ -1157,8 +1162,10 @@ if (descricao.length > 500) {
   });
 }
 
+      // Monta a URL pública usando BACKEND_URL do .env.
+      const backendUrl = (process.env.BACKEND_URL || "").replace(/\/$/, "");
       const imagem = req.file
-        ? `http://localhost:3000/uploads/${req.file.filename}`
+        ? `${backendUrl}/uploads/${req.file.filename}`
         : null;
 
       const generoResult =

@@ -1,6 +1,6 @@
-const multer  = require("multer");
-const path    = require("path");
-const crypto  = require("crypto");
+const multer = require("multer");
+const path   = require("path");
+const crypto = require("crypto");
 
 // ─── Constantes de validação ────────────────────────────────────────────────
 
@@ -16,11 +16,14 @@ const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 // ─── Storage ─────────────────────────────────────────────────────────────────
-// Nome gerado via crypto para nunca expor o nome original do usuário.
+// Usa caminho absoluto para garantir que a pasta seja encontrada independente
+// de onde o processo Node.js seja iniciado.
+// __dirname aqui é: backend/src/
+// Portanto: backend/src/uploads/
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, "src/uploads");
+    cb(null, path.join(__dirname, "uploads"));
   },
 
   filename: (_req, file, cb) => {
