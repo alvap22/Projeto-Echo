@@ -7,6 +7,7 @@ import api from "../services/api";
 
 import Header from "../components/Header";
 import UserModal from "../components/UserModal";
+import SafeImage from "../components/SafeImage";
 import "../styles/adminPanel.css";
 
 import {
@@ -822,7 +823,7 @@ const [aba, setAba] =
                 className={`admin-card${!item.ativo ? " admin-card-inactive" : ""}`}
               >
                 {item.imagem && (
-                  <img
+                  <SafeImage
                     src={item.imagem}
                     alt={item.titulo}
                   />
