@@ -8,7 +8,7 @@ import axios from "axios";
  * HTML de aviso ao invés do JSON esperado, causando erros de CORS/Network.
  */
 const api = axios.create({
-  baseURL: "https://imagines-catfish-sandstorm.ngrok-free.dev",
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "ngrok-skip-browser-warning": "true",
   },

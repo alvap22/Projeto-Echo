@@ -539,7 +539,7 @@ app.post(
       }
 
       const imagem = req.file
-        ? `http://localhost:3000/uploads/${req.file.filename}`
+        ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
         : null;
 
       const idUsuario = req.usuario.id;
