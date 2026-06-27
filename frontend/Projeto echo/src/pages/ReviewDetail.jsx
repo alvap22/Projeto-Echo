@@ -150,6 +150,15 @@ function ReviewDetail() {
       <Header />
 
       <div className="review-detail">
+        <div className="review-detail-back">
+          <button
+            onClick={() => navigate("/")}
+            className="btn-ghost btn-back-home"
+          >
+            ← Voltar para Home
+          </button>
+        </div>
+
         <div className="review-detail-content">
           {review.imagem && (
             <SafeImage
