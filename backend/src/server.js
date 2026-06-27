@@ -29,7 +29,31 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  "https://projeto-echo-front.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Permite requisições sem origin (ex: Postman, curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Bloqueado pelo CORS: origem não permitida"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "ngrok-skip-browser-warning",
+    ],
+  })
+);
 
 app.use(express.json());
 

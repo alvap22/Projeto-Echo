@@ -8,7 +8,7 @@ import {
   useParams,
 } from "react-router-dom";
 
-import axios from "axios";
+import api from "../services/api";
 
 import Header from "../components/Header";
 
@@ -44,7 +44,7 @@ function EditReview() {
   useEffect(() => {
     async function fetchGeneros() {
       try {
-        const response = await axios.get("http://localhost:3000/generos");
+        const response = await api.get("/generos");
         setListaGeneros(response.data);
       } catch (error) {
         console.error("Erro ao buscar gêneros:", error);
@@ -56,20 +56,9 @@ function EditReview() {
   useEffect(() => {
   async function fetchReview() {
     try {
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
       const response =
-        await axios.get(
-          `http://localhost:3000/reviews/${id}`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
+        await api.get(
+          `/reviews/${id}`
         );
 
       console.log(response.data);
@@ -146,11 +135,6 @@ function EditReview() {
   setErros({});
 
   try {
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
       const formData =
         new FormData();
 
@@ -181,14 +165,11 @@ function EditReview() {
         );
       }
 
-      await axios.put(
-        `http://localhost:3000/reviews/${id}`,
+      await api.put(
+        `/reviews/${id}`,
         formData,
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`,
-
             "Content-Type":
               "multipart/form-data",
           },

@@ -1,6 +1,4 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3000";
+import api from "./api";
 
 /**
  * Busca reviews paginadas do backend.
@@ -38,6 +36,6 @@ export async function fetchReviews({
     params.generos = generos.join(",");
   }
 
-  const response = await axios.get(`${API_URL}/reviews`, { params });
+  const response = await api.get("/reviews", { params });
   return response.data;
 }

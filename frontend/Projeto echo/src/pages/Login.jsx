@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import axios from "axios";
+import api from "../services/api";
 
 import { useNavigate } from "react-router-dom";
 
@@ -131,8 +131,8 @@ function Login() {
 
     try {
       if (isLogin) {
-        const response = await axios.post(
-          "http://localhost:3000/auth/login",
+        const response = await api.post(
+          "/auth/login",
           { email, senha: password }
         );
 
@@ -145,7 +145,7 @@ function Login() {
           navigate("/home");
         }
       } else {
-        await axios.post("http://localhost:3000/auth/register", {
+        await api.post("/auth/register", {
           nome,
           email,
           senha: password,
@@ -174,8 +174,8 @@ function Login() {
 
   async function handleForgotPassword() {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/auth/forgot-password",
+      const response = await api.post(
+        "/auth/forgot-password",
         { email: emailRecuperacao }
       );
 

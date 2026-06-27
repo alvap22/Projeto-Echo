@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../services/api";
 
 function GenreFilter({ selectedGenres, setSelectedGenres }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,7 +9,7 @@ function GenreFilter({ selectedGenres, setSelectedGenres }) {
   useEffect(() => {
     async function fetchGenres() {
       try {
-        const response = await axios.get("http://localhost:3000/generos");
+        const response = await api.get("/generos");
         setGenres(response.data);
       } catch (error) {
         console.error("Erro ao buscar gêneros no filtro:", error);

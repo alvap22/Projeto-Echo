@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import axios from "axios";
+import api from "../services/api";
 
 import {
   useParams,
@@ -48,8 +48,8 @@ function ResetPassword() {
     try {
 
       const response =
-        await axios.post(
-          `http://localhost:3000/auth/reset-password/${token}`,
+        await api.post(
+          `/auth/reset-password/${token}`,
           {
             novaSenha,
           }

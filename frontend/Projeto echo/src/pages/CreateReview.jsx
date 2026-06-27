@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 
 import Header from "../components/Header";
@@ -33,7 +33,7 @@ function CreateReview() {
   useEffect(() => {
     async function fetchGeneros() {
       try {
-        const response = await axios.get("http://localhost:3000/generos");
+        const response = await api.get("/generos");
         setListaGeneros(response.data);
       } catch (error) {
         console.error("Erro ao buscar gêneros:", error);
@@ -104,12 +104,9 @@ function CreateReview() {
     if (imagem) formData.append("imagem", imagem);
 
     try {
-      const token = localStorage.getItem("token");
-
-      await axios.post("http://localhost:3000/reviews", formData, {
+      await api.post("/reviews", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
         },
       });
 

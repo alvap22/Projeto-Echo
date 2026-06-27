@@ -3,7 +3,7 @@ import {
   useState,
 } from "react";
 
-import axios from "axios";
+import api from "../services/api";
 
 import Header from "../components/Header";
 import UserModal from "../components/UserModal";
@@ -88,15 +88,7 @@ const [aba, setAba] =
 
   async function fetchUsuarios() {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://localhost:3000/admin/usuarios",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get("/admin/usuarios");
       setUsuarios(response.data);
     } catch (error) {
       console.log(error);
@@ -109,15 +101,9 @@ const [aba, setAba] =
 
   async function toggleStatusUsuario(id) {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `http://localhost:3000/admin/usuarios/${id}/toggle`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await api.put(
+        `/admin/usuarios/${id}/toggle`,
+        {}
       );
 
       fetchUsuarios();
@@ -147,15 +133,7 @@ const [aba, setAba] =
 
   async function fetchDenuncias() {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "http://localhost:3000/admin/denuncias",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get("/admin/denuncias");
       setDenuncias(response.data);
     } catch (error) {
       console.log(error);
@@ -189,18 +167,12 @@ const [aba, setAba] =
     }
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        "http://localhost:3000/admin/criar-admin",
+      await api.post(
+        "/admin/criar-admin",
         {
           nome,
           email,
           senha,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
@@ -224,15 +196,7 @@ const [aba, setAba] =
 
   async function executarLimparDenuncias(id) {
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(
-        `http://localhost:3000/admin/denuncias/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await api.delete(`/admin/denuncias/${id}`);
       fetchDenuncias();
       setMensagemFeedback({
         texto: "Denúncias limpas com sucesso!",
@@ -260,15 +224,7 @@ const [aba, setAba] =
 
   async function executarExcluirReview(id) {
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(
-        `http://localhost:3000/reviews/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await api.delete(`/reviews/${id}`);
       fetchDenuncias();
       setMensagemFeedback({
         texto: "Review excluída com sucesso!",
@@ -296,15 +252,9 @@ const [aba, setAba] =
 
   async function executarRestaurarReview(id) {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `http://localhost:3000/admin/reviews/${id}/restaurar`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await api.put(
+        `/admin/reviews/${id}/restaurar`,
+        {}
       );
       fetchDenuncias();
       fetchDashboard();
@@ -345,19 +295,9 @@ const [aba, setAba] =
 
   async function fetchDashboard() {
     try {
-      const token = localStorage.getItem("token");
-      
       const [usersRes, reviewsRes] = await Promise.all([
-        axios.get("http://localhost:3000/admin/usuarios", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }),
-        axios.get("http://localhost:3000/admin/denuncias", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        api.get("/admin/usuarios"),
+        api.get("/admin/denuncias"),
       ]);
 
       const users = usersRes.data;

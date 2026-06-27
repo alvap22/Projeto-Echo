@@ -8,7 +8,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import axios from "axios";
+import api from "../services/api";
 
 import Header from "../components/Header";
 import "../styles/reviewDetail.css";
@@ -34,29 +34,15 @@ function ReviewDetail() {
         return;
       }
       setFeedback({ message: "", isError: false });
-      const token = localStorage.getItem("token");
-
-      await axios.post(
-        `http://localhost:3000/reviews/${id}/comentarios`,
+      await api.post(
+        `/reviews/${id}/comentarios`,
         {
           texto: textoComentario,
           id_comentario_pai: null,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
-      const response = await axios.get(
-        `http://localhost:3000/admin/review/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get(`/admin/review/${id}`);
 
       setComentarios(response.data.comentarios || []);
       setTextoComentario("");
@@ -68,15 +54,7 @@ function ReviewDetail() {
   useEffect(() => {
     async function fetchReview() {
       try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `http://localhost:3000/admin/review/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await api.get(`/admin/review/${id}`);
         setReview(response.data.review);
         setComentarios(response.data.comentarios || []);
         setCurtidas(response.data.curtidas || 0);
@@ -94,29 +72,15 @@ function ReviewDetail() {
       if (!respostaTexto.trim()) {
         return;
       }
-      const token = localStorage.getItem("token");
-
-      await axios.post(
-        `http://localhost:3000/reviews/${id}/comentarios`,
+      await api.post(
+        `/reviews/${id}/comentarios`,
         {
           texto: respostaTexto,
           id_comentario_pai: idComentario,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
-      const response = await axios.get(
-        `http://localhost:3000/admin/review/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get(`/admin/review/${id}`);
 
       setComentarios(response.data.comentarios || []);
       setRespostaTexto("");
@@ -128,16 +92,7 @@ function ReviewDetail() {
 
   async function handleCurtir() {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `http://localhost:3000/reviews/${id}/curtir`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.post(`/reviews/${id}/curtir`, {});
 
       if (response.data.curtido) {
         setCurtido(true);
@@ -154,16 +109,7 @@ function ReviewDetail() {
   async function handleDenunciaConfirmada() {
     try {
       setConfirmandoDenuncia(false);
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `http://localhost:3000/reviews/${id}/denunciar`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.post(`/reviews/${id}/denunciar`, {});
       setFeedback({ message: response.data.message, isError: false });
     } catch (error) {
       console.log(error);

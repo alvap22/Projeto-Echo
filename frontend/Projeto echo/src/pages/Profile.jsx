@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useEffect, useState } from "react";
 
-import axios from "axios";
+import api from "../services/api";
 
 import Header from "../components/Header";
 
@@ -31,21 +31,8 @@ function Profile() {
 
       try {
 
-        const token =
-          localStorage.getItem(
-            "token"
-          );
-
         const response =
-          await axios.get(
-            "http://localhost:3000/profile",
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            }
-          );
+          await api.get("/profile");
 
         setUsuario(
           response.data.usuario
@@ -100,20 +87,7 @@ function Profile() {
 
     try {
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      await axios.delete(
-        `http://localhost:3000/reviews/${id}`,
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
+      await api.delete(`/reviews/${id}`);
 
       setReviews(
         reviews.filter(
