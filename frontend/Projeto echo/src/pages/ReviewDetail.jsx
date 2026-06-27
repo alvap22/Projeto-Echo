@@ -11,6 +11,7 @@ import {
 import api from "../services/api";
 
 import Header from "../components/Header";
+import SafeImage from "../components/SafeImage";
 import "../styles/reviewDetail.css";
 
 function ReviewDetail() {
@@ -151,7 +152,7 @@ function ReviewDetail() {
       <div className="review-detail">
         <div className="review-detail-content">
           {review.imagem && (
-            <img
+            <SafeImage
               src={review.imagem}
               alt={review.titulo}
               className="review-image"

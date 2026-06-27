@@ -12,6 +12,7 @@ useParams
 import api from "../services/api";
 
 import Header from "../components/Header";
+import SafeImage from "../components/SafeImage";
 
 import "../styles/profile.css";
 
@@ -243,7 +244,7 @@ return (
                 >
                   {
                     review.imagem && (
-                      <img
+                      <SafeImage
                         src={
                           review.imagem
                         }

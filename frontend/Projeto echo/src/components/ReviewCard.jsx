@@ -1,5 +1,6 @@
 import "../styles/reviewCard.css";
 import ReviewImagePlaceholder from "./ReviewImagePlaceholder";
+import SafeImage from "./SafeImage";
 
 import { useNavigate } from "react-router-dom";
 
@@ -13,7 +14,7 @@ function ReviewCard(props) {
   return (
     <div className="review-card">
       {props.imagem ? (
-        <img
+        <SafeImage
           src={props.imagem}
           alt={props.titulo}
           className="review-image"

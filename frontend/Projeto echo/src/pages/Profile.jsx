@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 
 import Header from "../components/Header";
+import SafeImage from "../components/SafeImage";
 
 import "../styles/profile.css";
 
@@ -209,7 +210,7 @@ function Profile() {
                     >
                       {
                         review.imagem && (
-                          <img
+                          <SafeImage
                             src={
                               review.imagem
                             }
